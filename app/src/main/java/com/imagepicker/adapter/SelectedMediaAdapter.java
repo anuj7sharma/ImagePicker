@@ -43,7 +43,7 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (holder instanceof SelectedMediaHolder) {
             SelectedMediaHolder vh = (SelectedMediaHolder) holder;
             MediaItemBean obj = mediaList.get(position);
-            Picasso.with(context).load(new File(obj.getMediaPath())).placeholder(R.drawable.ic_def_image).resize(300, 500).centerCrop().into(vh.imageView);
+            Picasso.with(context).load(new File(obj.getMediaPath())).placeholder(R.drawable.ic_def_image).resize(250, 150).centerCrop().into(vh.imageView);
 
         }
     }

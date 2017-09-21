@@ -6,11 +6,13 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,6 +23,7 @@ import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.ui.selectedMedia.SelectedMediaActivity;
 import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.PermissionsAndroid;
+import com.imagepicker.utils.SpacesItemDecoration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,10 +83,10 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
             }
         });
 
-        mediaListView.getRecyclerView().addItemDecoration(new DividerItemDecoration(mediaListActivity,
-                DividerItemDecoration.VERTICAL));
         StaggeredGridLayoutManager sm = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
         mediaListView.getRecyclerView().setLayoutManager(sm);
+        int spacingInPixels = mediaListActivity.getResources().getDimensionPixelSize(R.dimen.margin_4);
+        mediaListView.getRecyclerView().addItemDecoration(new SpacesItemDecoration(spacingInPixels));
         adapter = new MediaListAdapter(mediaListActivity, null, this);
         mediaListView.getRecyclerView().setAdapter(adapter);
         fetchMediaFiles();

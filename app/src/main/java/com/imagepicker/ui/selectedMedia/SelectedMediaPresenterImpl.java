@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import com.imagepicker.R;
 import com.imagepicker.adapter.SelectedMediaAdapter;
 import com.imagepicker.model.MediaItemBean;
+import com.imagepicker.utils.SpacesItemDecoration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +44,9 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
         LinearLayoutManager lm = new LinearLayoutManager(selectedMediaActivity);
         lm.setOrientation(LinearLayoutManager.HORIZONTAL);
         selectedMediaView.getSelectedMediaRecycler().setLayoutManager(lm);
+        int spacingInPixels = selectedMediaActivity.getResources().getDimensionPixelSize(R.dimen.margin_4);
+        selectedMediaView.getSelectedMediaRecycler().addItemDecoration(new SpacesItemDecoration(spacingInPixels));
+
         List<MediaItemBean> selectedMediaList = new ArrayList<>(selectedMediaMap.values());
         SelectedMediaAdapter adapter = new SelectedMediaAdapter(selectedMediaActivity, selectedMediaList, this);
         selectedMediaView.getSelectedMediaRecycler().setAdapter(adapter);

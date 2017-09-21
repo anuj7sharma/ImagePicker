@@ -22,7 +22,7 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_selected_media"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="150dp"
             android:layout_alignParentBottom="true"
             android:padding="@dimen/margin_4" />
     </RelativeLayout>
