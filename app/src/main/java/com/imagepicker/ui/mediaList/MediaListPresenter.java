@@ -10,9 +10,8 @@ import com.imagepicker.model.MediaItemBean;
 
 public interface MediaListPresenter {
 
-    void onMediaItemLongClick(MediaItemBean obj, ImageView view);
+    void onMediaItemLongClick(MediaItemBean obj, int position, ImageView view);
 
-    void onMediaItemClick(MediaItemBean obj);
+    void onMediaItemClick(MediaItemBean obj, int position);
 
-    int totalSelectedItemCount();
 }

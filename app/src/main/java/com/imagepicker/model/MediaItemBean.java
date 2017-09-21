@@ -1,16 +1,19 @@
 package com.imagepicker.model;
 
+import java.io.Serializable;
+
 /**
  * Created by Anuj Sharma on 9/18/2017.
  */
 
-public class MediaItemBean {
+public class MediaItemBean implements Serializable{
     boolean isSelected;
+    String id;
     String mediaName;
     String mediaExtenstion;
-    String mediaSize;
-    String mediaThumbnail;
+    long mediaSize;
     String mediaPath;
+    String mimeType;
 
     public boolean isSelected() {
         return isSelected;
@@ -36,20 +39,12 @@ public class MediaItemBean {
         this.mediaExtenstion = mediaExtenstion;
     }
 
-    public String getMediaSize() {
+    public long getMediaSize() {
         return mediaSize;
     }
 
-    public void setMediaSize(String mediaSize) {
+    public void setMediaSize(long mediaSize) {
         this.mediaSize = mediaSize;
-    }
-
-    public String getMediaThumbnail() {
-        return mediaThumbnail;
-    }
-
-    public void setMediaThumbnail(String mediaThumbnail) {
-        this.mediaThumbnail = mediaThumbnail;
     }
 
     public String getMediaPath() {
@@ -58,5 +53,21 @@ public class MediaItemBean {
 
     public void setMediaPath(String mediaPath) {
         this.mediaPath = mediaPath;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
     }
 }

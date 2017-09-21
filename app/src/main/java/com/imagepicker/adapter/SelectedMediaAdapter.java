@@ -9,23 +9,23 @@ import android.widget.ImageView;
 
 import com.imagepicker.R;
 import com.imagepicker.model.MediaItemBean;
-import com.imagepicker.ui.mediaList.MediaListPresenter;
+import com.imagepicker.ui.selectedMedia.SelectedMediaPresenter;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.List;
 
 /**
- * Created by Anuj Sharma on 9/18/2017.
+ * Created by Anuj Sharma on 9/21/2017.
  */
 
-public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context context;
     private int lastPosition = -1;
     private List<MediaItemBean> mediaList;
-    MediaListPresenter presenter;
+    SelectedMediaPresenter presenter;
 
-    public MediaListAdapter(Context context, List<MediaItemBean> mediaList, MediaListPresenter listener) {
+    public SelectedMediaAdapter(Context context, List<MediaItemBean> mediaList, SelectedMediaPresenter listener) {
         this.context = context;
         this.mediaList = mediaList;
         this.presenter = listener;
@@ -39,20 +39,16 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_media_item, null);
-        return new MediaHolder(view);
+        return new SelectedMediaHolder(view);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (holder instanceof MediaHolder) {
-            MediaHolder vh = (MediaHolder) holder;
-            MediaItemBean obj = (MediaItemBean) mediaList.get(position);
-            Picasso.with(context).load(new File(obj.getMediaPath())).placeholder(R.drawable.ic_def_image).resize(300, 300).centerCrop().into(vh.imageView);
-            if (obj.isSelected()) {
-                vh.selectedIcon.setVisibility(View.VISIBLE);
-            } else {
-                vh.selectedIcon.setVisibility(View.GONE);
-            }
+        if (holder instanceof SelectedMediaHolder) {
+            SelectedMediaHolder vh = (SelectedMediaHolder) holder;
+            MediaItemBean obj = mediaList.get(position);
+            Picasso.with(context).load(new File(obj.getMediaPath())).placeholder(R.drawable.ic_def_image).resize(300, 500).centerCrop().into(vh.imageView);
+
         }
     }
 
@@ -61,27 +57,31 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return (mediaList == null) ? 0 : mediaList.size();
     }
 
-    private class MediaHolder extends RecyclerView.ViewHolder {
+    private class SelectedMediaHolder extends RecyclerView.ViewHolder {
         private ImageView imageView, selectedIcon;
         private View viewSelected;
 
-        public MediaHolder(View itemView) {
+        public SelectedMediaHolder(View itemView) {
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.media_image);
             selectedIcon = (ImageView) itemView.findViewById(R.id.img_selected);
             viewSelected = (View) itemView.findViewById(R.id.selected_view);
+            selectedIcon.setVisibility(View.GONE);
+            viewSelected.setVisibility(View.GONE);
 
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    presenter.onMediaItemClick(mediaList.get(getLayoutPosition()), getLayoutPosition());
+                    if (presenter != null)
+                        presenter.onMediaClick(mediaList.get(getLayoutPosition()), getLayoutPosition());
                 }
             });
 
             imageView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    presenter.onMediaItemLongClick(mediaList.get(getLayoutPosition()), getLayoutPosition(), imageView);
+                    if (presenter != null)
+                        presenter.onMediaLongClick(mediaList.get(getLayoutPosition()), getLayoutPosition(), imageView);
                     return false;
                 }
             });

@@ -2,20 +2,26 @@ package com.imagepicker.ui.mediaList;
 
 import android.app.LoaderManager;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.imagepicker.R;
 import com.imagepicker.adapter.MediaListAdapter;
 import com.imagepicker.model.MediaItemBean;
+import com.imagepicker.ui.selectedMedia.SelectedMediaActivity;
+import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.PermissionsAndroid;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -26,6 +32,8 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
 
     private MediaListActivity mediaListActivity;
     private MediaListView mediaListView;
+    private List<MediaItemBean> mediaList;
+    private HashMap<String, MediaItemBean> selectedMediaMap;
     private MediaListAdapter adapter;
 
     //Variables related to Media Projections
@@ -38,6 +46,9 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
             MediaStore.Files.FileColumns.MIME_TYPE,
             MediaStore.Files.FileColumns.TITLE,
             MediaStore.Files.FileColumns.DISPLAY_NAME,
+            MediaStore.Files.FileColumns.SIZE,
+            MediaStore.Files.FileColumns.WIDTH,
+            MediaStore.Files.FileColumns.HEIGHT,
 
     };
     // Return only video and image metadata.
@@ -58,9 +69,18 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     private void init() {
         mediaListActivity.setSupportActionBar(mediaListView.getToolbar());
         mediaListActivity.getSupportActionBar().setTitle(mediaListActivity.getString(R.string.app_name));
+        mediaListActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+        mediaListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mediaListView.getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
+            }
+        });
+
+        mediaListView.getRecyclerView().addItemDecoration(new DividerItemDecoration(mediaListActivity,
+                DividerItemDecoration.VERTICAL));
         StaggeredGridLayoutManager sm = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
-//        sm.setAutoMeasureEnabled(true);
         mediaListView.getRecyclerView().setLayoutManager(sm);
         adapter = new MediaListAdapter(mediaListActivity, null, this);
         mediaListView.getRecyclerView().setAdapter(adapter);
@@ -77,19 +97,43 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     }
 
     @Override
-    public void onMediaItemLongClick(MediaItemBean obj, ImageView view) {
+    public void onMediaItemLongClick(MediaItemBean obj, int positon, ImageView view) {
         //Navigate user to MediaDetail screen
 
     }
 
     @Override
-    public void onMediaItemClick(MediaItemBean obj) {
+    public void onMediaItemClick(MediaItemBean obj, int position) {
         //select
-    }
+        if (selectedMediaMap == null) selectedMediaMap = new HashMap<>();
+        try {
+            if (obj.isSelected()) {
+                obj.setSelected(false);
+                selectedMediaMap.remove(obj.getId());
+            } else {
+                obj.setSelected(true);
+                selectedMediaMap.put(obj.getId(), obj);
+            }
+            mediaList.set(position, obj);
+            adapter.updateList(mediaList);
 
-    @Override
-    public int totalSelectedItemCount() {
-        return 0;
+
+            //update selected media count on toolbar
+            mediaListActivity.getSupportActionBar().setTitle(R.string.app_name);
+            mediaListActivity.count.setTitle(String.valueOf(selectedMediaMap.size()));
+            if (selectedMediaMap.size() > 0) {
+                mediaListActivity.count.setVisible(true);
+                mediaListActivity.save.setVisible(true);
+            } else {
+                mediaListActivity.count.setVisible(false);
+                mediaListActivity.save.setVisible(false);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Select Id-> " + obj.getId());
     }
 
     @Override
@@ -102,27 +146,32 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                 null, // Selection args (none).
                 MediaStore.Files.FileColumns.DATE_ADDED + " DESC" // Sort order.
         );
-        Cursor cursor = cursorLoader.loadInBackground();
+//        Cursor cursor = cursorLoader.loadInBackground();
         return cursorLoader;
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         String imagePath;
-        List<MediaItemBean> mediaList = new ArrayList<>();
+        mediaList = new ArrayList<>();
         if (data != null) {
 
             while (data.moveToNext()) {
+                int id = data.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
                 int mediaData = data.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                int title = data.getColumnIndexOrThrow(MediaStore.Images.Media.TITLE);
                 int mediaName = data.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
                 int mimeType = data.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE);
                 int mediaType = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
-
+                int mediaSize = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE);
                 imagePath = data.getString(mediaData);
                 System.out.println("Path-> " + imagePath);
                 MediaItemBean obj = new MediaItemBean();
+                obj.setId(data.getString(id));
                 obj.setMediaName(data.getString(mediaName));
                 obj.setMediaPath(data.getString(mediaData));
+                obj.setMimeType(data.getString(mimeType));
+                obj.setMediaSize(data.getLong(mediaSize));
                 mediaList.add(obj);
             }
             if (mediaList.size() > 0) {
@@ -139,5 +188,12 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    public void saveSelectedMedia() {
+        //navigate selected media items to next screen.
+        Intent intent = new Intent(mediaListActivity, SelectedMediaActivity.class);
+        intent.putExtra(Constants.SELECTED_MEDIA_LIST_OBJ, selectedMediaMap);
+        mediaListActivity.startActivity(intent);
     }
 }

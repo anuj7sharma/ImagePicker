@@ -14,6 +14,10 @@
     <color name="colorAppRed">#fe3b49</color>
     <color name="colorAppYellow">#f0cf36</color>
 
+    <color name="app_textcolor_heading">#444444</color>
+    <color name="app_textcolor">#211f20</color>
+    <color name="app_hintcolor">#3e3e3e</color>
+
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="light_gray">#f2f2f2</color>
