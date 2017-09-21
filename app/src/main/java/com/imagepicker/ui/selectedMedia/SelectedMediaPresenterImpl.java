@@ -4,6 +4,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.imagepicker.R;
 import com.imagepicker.adapter.SelectedMediaAdapter;
 import com.imagepicker.model.MediaItemBean;
 
@@ -12,18 +13,16 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Created by Anuj Sharma on 9/21/2017.
+ * auther Anuj Sharma on 9/21/2017.
  */
 
 public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
 
     private SelectedMediaActivity selectedMediaActivity;
     private SelectedMediaView selectedMediaView;
-    private SingleMediaFragment singleMediaFragment;
     private HashMap<String, MediaItemBean> selectedMediaMap;
-    private SelectedMediaAdapter adapter;
 
-    public SelectedMediaPresenterImpl(SelectedMediaActivity selectedMediaActivity, SelectedMediaView selectedMediaView, HashMap<String, MediaItemBean> selectedMediaMap) {
+    SelectedMediaPresenterImpl(SelectedMediaActivity selectedMediaActivity, SelectedMediaView selectedMediaView, HashMap<String, MediaItemBean> selectedMediaMap) {
         this.selectedMediaActivity = selectedMediaActivity;
         this.selectedMediaView = selectedMediaView;
         this.selectedMediaMap = selectedMediaMap;
@@ -32,8 +31,7 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
 
     private void init() {
         selectedMediaActivity.setSupportActionBar(selectedMediaView.getToolbar());
-        selectedMediaActivity.getSupportActionBar().setTitle("Crop Image");
-        selectedMediaActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+        selectedMediaActivity.getSupportActionBar().setTitle(R.string.title_crop_image);
         selectedMediaActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         selectedMediaView.getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,7 +44,7 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
         lm.setOrientation(LinearLayoutManager.HORIZONTAL);
         selectedMediaView.getSelectedMediaRecycler().setLayoutManager(lm);
         List<MediaItemBean> selectedMediaList = new ArrayList<>(selectedMediaMap.values());
-        adapter = new SelectedMediaAdapter(selectedMediaActivity, selectedMediaList, this);
+        SelectedMediaAdapter adapter = new SelectedMediaAdapter(selectedMediaActivity, selectedMediaList, this);
         selectedMediaView.getSelectedMediaRecycler().setAdapter(adapter);
     }
 

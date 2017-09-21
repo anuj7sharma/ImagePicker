@@ -5,7 +5,7 @@ import android.widget.ImageView;
 import com.imagepicker.model.MediaItemBean;
 
 /**
- * Created by Anuj Sharma on 9/21/2017.
+ * auther Anuj Sharma on 9/21/2017.
  */
 
 public interface SelectedMediaPresenter {

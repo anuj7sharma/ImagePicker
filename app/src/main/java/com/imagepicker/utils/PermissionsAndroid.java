@@ -28,11 +28,11 @@ import android.widget.Toast;
 
 
 /**
- * Created by Anuj on 14/01/16.
+ * auther Anuj on 14/01/16.
  */
 public class PermissionsAndroid {
 
-    static PermissionsAndroid permissionsAndroid;
+    private static PermissionsAndroid permissionsAndroid;
 
     public static PermissionsAndroid getInstance() {
         if (permissionsAndroid == null)
@@ -212,10 +212,7 @@ public class PermissionsAndroid {
 
     // function to return true or false based on the permission result
     private boolean boolValue(int value) {
-        if (value == PackageManager.PERMISSION_GRANTED)
-            return true;
-        else
-            return false;
+        return value == PackageManager.PERMISSION_GRANTED;
     }
 
 }

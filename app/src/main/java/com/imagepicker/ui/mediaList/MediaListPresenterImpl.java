@@ -1,11 +1,13 @@
 package com.imagepicker.ui.mediaList;
 
+import android.annotation.TargetApi;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.widget.DividerItemDecoration;
@@ -25,9 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Created by Anuj Sharma on 9/18/2017.
+ * auther Anuj Sharma on 9/18/2017.
  */
 
+@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager.LoaderCallbacks<Cursor> {
 
     private MediaListActivity mediaListActivity;
@@ -38,7 +41,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
 
     //Variables related to Media Projections
     // Get relevant columns for use later.
-    String[] projection = {
+    private String[] projection = {
             MediaStore.Files.FileColumns._ID,
             MediaStore.Files.FileColumns.DATA,
             MediaStore.Files.FileColumns.DATE_ADDED,
@@ -52,12 +55,12 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
 
     };
     // Return only video and image metadata.
-    String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+    private String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
             + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
             + " OR "
             + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
             + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
-    Uri queryUri = MediaStore.Files.getContentUri("external");
+    private Uri queryUri = MediaStore.Files.getContentUri("external");
 
 
     MediaListPresenterImpl(MediaListActivity mediaListActivity, MediaListView mediaListView) {
@@ -69,7 +72,6 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     private void init() {
         mediaListActivity.setSupportActionBar(mediaListView.getToolbar());
         mediaListActivity.getSupportActionBar().setTitle(mediaListActivity.getString(R.string.app_name));
-        mediaListActivity.getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
         mediaListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mediaListView.getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,7 +89,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
         fetchMediaFiles();
     }
 
-    public void fetchMediaFiles() {
+    void fetchMediaFiles() {
         //check read/write storage permission
         if (PermissionsAndroid.getInstance().checkWriteExternalStoragePermission(mediaListActivity)) {
             mediaListActivity.getLoaderManager().initLoader(0, null, this);
@@ -138,7 +140,8 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        CursorLoader cursorLoader = new CursorLoader(
+        //        Cursor cursor = cursorLoader.loadInBackground();
+        return new CursorLoader(
                 mediaListActivity,
                 queryUri,
                 projection,
@@ -146,8 +149,6 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                 null, // Selection args (none).
                 MediaStore.Files.FileColumns.DATE_ADDED + " DESC" // Sort order.
         );
-//        Cursor cursor = cursorLoader.loadInBackground();
-        return cursorLoader;
     }
 
     @Override
@@ -159,10 +160,10 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
             while (data.moveToNext()) {
                 int id = data.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
                 int mediaData = data.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                int title = data.getColumnIndexOrThrow(MediaStore.Images.Media.TITLE);
+//                int title = data.getColumnIndexOrThrow(MediaStore.Images.Media.TITLE);
                 int mediaName = data.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
                 int mimeType = data.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE);
-                int mediaType = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
+//                int mediaType = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
                 int mediaSize = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE);
                 imagePath = data.getString(mediaData);
                 System.out.println("Path-> " + imagePath);
@@ -190,7 +191,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
 
     }
 
-    public void saveSelectedMedia() {
+    void saveSelectedMedia() {
         //navigate selected media items to next screen.
         Intent intent = new Intent(mediaListActivity, SelectedMediaActivity.class);
         intent.putExtra(Constants.SELECTED_MEDIA_LIST_OBJ, selectedMediaMap);

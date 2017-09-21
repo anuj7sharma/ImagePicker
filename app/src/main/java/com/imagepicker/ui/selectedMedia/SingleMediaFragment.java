@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import com.imagepicker.R;
 
 /**
- * Created by Anuj Sharma on 9/21/2017.
+ * auther Anuj Sharma on 9/21/2017.
  */
 
 public class SingleMediaFragment extends Fragment implements SingleMediaView {

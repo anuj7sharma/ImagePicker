@@ -16,7 +16,7 @@ import com.imagepicker.R;
 import com.imagepicker.utils.PermissionsAndroid;
 
 /**
- * Created by Anuj Sharma on 9/18/2017.
+ * auther Anuj Sharma on 9/18/2017.
  */
 
 public class MediaListActivity extends AppCompatActivity implements MediaListView {
@@ -61,8 +61,8 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
     }
 
     private void initViews() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        recyclerView = (RecyclerView) findViewById(R.id.media_recycler);
+        toolbar = findViewById(R.id.toolbar);
+        recyclerView = findViewById(R.id.media_recycler);
     }
 
     @Override
@@ -94,7 +94,6 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
                     Toast.makeText(this, "Camera/Storage permission Denied", Toast.LENGTH_SHORT).show();
 //                    Utils.getInstance().showToast("Camera/Storage permission Denied");
                 }
-                return;
             }
 
         }

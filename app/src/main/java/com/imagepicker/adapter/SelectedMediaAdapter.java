@@ -1,5 +1,6 @@
 package com.imagepicker.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,14 +17,13 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Created by Anuj Sharma on 9/21/2017.
+ * auther Anuj Sharma on 9/21/2017.
  */
 
 public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context context;
-    private int lastPosition = -1;
     private List<MediaItemBean> mediaList;
-    SelectedMediaPresenter presenter;
+    private SelectedMediaPresenter presenter;
 
     public SelectedMediaAdapter(Context context, List<MediaItemBean> mediaList, SelectedMediaPresenter listener) {
         this.context = context;
@@ -31,13 +31,9 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
         this.presenter = listener;
     }
 
-    public void updateList(List<MediaItemBean> mediaList) {
-        this.mediaList = mediaList;
-        notifyDataSetChanged();
-    }
-
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        @SuppressLint("InflateParams")
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_media_item, null);
         return new SelectedMediaHolder(view);
     }
@@ -61,11 +57,11 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
         private ImageView imageView, selectedIcon;
         private View viewSelected;
 
-        public SelectedMediaHolder(View itemView) {
+        private  SelectedMediaHolder(View itemView) {
             super(itemView);
-            imageView = (ImageView) itemView.findViewById(R.id.media_image);
-            selectedIcon = (ImageView) itemView.findViewById(R.id.img_selected);
-            viewSelected = (View) itemView.findViewById(R.id.selected_view);
+            imageView =  itemView.findViewById(R.id.media_image);
+            selectedIcon =  itemView.findViewById(R.id.img_selected);
+            viewSelected =  itemView.findViewById(R.id.selected_view);
             selectedIcon.setVisibility(View.GONE);
             viewSelected.setVisibility(View.GONE);
 

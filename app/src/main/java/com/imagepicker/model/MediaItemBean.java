@@ -3,17 +3,17 @@ package com.imagepicker.model;
 import java.io.Serializable;
 
 /**
- * Created by Anuj Sharma on 9/18/2017.
+ * auther Anuj Sharma on 9/18/2017.
  */
 
 public class MediaItemBean implements Serializable{
-    boolean isSelected;
-    String id;
-    String mediaName;
-    String mediaExtenstion;
-    long mediaSize;
-    String mediaPath;
-    String mimeType;
+    private boolean isSelected;
+    private String id;
+    private String mediaName;
+    private String mediaExtenstion;
+    private long mediaSize;
+    private String mediaPath;
+    private String mimeType;
 
     public boolean isSelected() {
         return isSelected;

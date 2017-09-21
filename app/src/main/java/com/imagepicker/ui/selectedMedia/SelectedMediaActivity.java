@@ -2,7 +2,6 @@ package com.imagepicker.ui.selectedMedia;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -15,7 +14,7 @@ import com.imagepicker.utils.Constants;
 import java.util.HashMap;
 
 /**
- * Created by Anuj Sharma on 9/21/2017.
+ * auther Anuj Sharma on 9/21/2017.
  */
 
 public class SelectedMediaActivity extends AppCompatActivity implements SelectedMediaView {
@@ -23,7 +22,6 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
     private HashMap<String, MediaItemBean> selectedMediaMap;
     private Toolbar toolbar;
     private RecyclerView selectedMediaRecycler;
-    private SelectedMediaPresenterImpl presenterImpl;
     private SingleMediaFragment singleMediaFragment;
 
     @Override
@@ -32,15 +30,14 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
         setContentView(R.layout.activity_selected_media);
         if (getIntent() != null && getIntent().getSerializableExtra(Constants.SELECTED_MEDIA_LIST_OBJ) != null) {
             selectedMediaMap = (HashMap<String, MediaItemBean>) getIntent().getSerializableExtra(Constants.SELECTED_MEDIA_LIST_OBJ);
-            System.out.println("Size-> " + selectedMediaMap.size());
         }
         initViews();
-        presenterImpl = new SelectedMediaPresenterImpl(this, this, selectedMediaMap);
+        SelectedMediaPresenterImpl presenterImpl = new SelectedMediaPresenterImpl(this, this, selectedMediaMap);
     }
 
     private void initViews() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        selectedMediaRecycler = (RecyclerView) findViewById(R.id.recycler_selected_media);
+        toolbar =  findViewById(R.id.toolbar);
+        selectedMediaRecycler =  findViewById(R.id.recycler_selected_media);
 
         singleMediaFragment = new SingleMediaFragment();
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
