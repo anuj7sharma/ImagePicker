@@ -65,12 +65,6 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
             MediaStore.Files.FileColumns.HEIGHT,
 
     };
-    // Return only video and image metadata.
-    private String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
-            + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
-            + " OR "
-            + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
-            + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
     private Uri queryUri = MediaStore.Files.getContentUri("external");
 
 
@@ -163,6 +157,11 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         //        Cursor cursor = cursorLoader.loadInBackground();
+        String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+                + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
+                + " OR "
+                + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+                + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
         return new CursorLoader(
                 mediaListActivity,
                 queryUri,

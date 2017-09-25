@@ -10,7 +10,8 @@
     app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="@dimen/margin_4"
     app:cardPreventCornerOverlap="false"
-    app:cardUseCompatPadding="false">
+    app:cardUseCompatPadding="false"
+    android:focusable="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -20,6 +21,7 @@
             android:id="@+id/media_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/desc_media_item"
             android:minHeight="@dimen/media_item_size"
             android:minWidth="@dimen/media_item_size"
             android:scaleType="centerCrop"
@@ -29,7 +31,9 @@
             android:id="@+id/img_selected"
             android:layout_width="@dimen/margin_32"
             android:layout_height="@dimen/margin_32"
+            android:contentDescription="@string/desc_selected"
             android:padding="@dimen/margin_4"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:layout_margin="@dimen/margin_4"

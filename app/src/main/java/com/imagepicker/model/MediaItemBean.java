@@ -1,5 +1,7 @@
 package com.imagepicker.model;
 
+import android.util.SparseArray;
+
 import java.io.Serializable;
 
 /**
@@ -7,6 +9,7 @@ import java.io.Serializable;
  */
 
 public class MediaItemBean implements Serializable{
+
     private boolean isSelected;
     private String id;
     private String mediaName;

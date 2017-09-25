@@ -11,11 +11,15 @@ import android.widget.ImageView;
 import com.imagepicker.R;
 import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.ui.mediaList.MediaListPresenter;
+import com.jakewharton.rxbinding2.view.RxView;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.functions.Consumer;
 
 /**
  * auther Anuj Sharma on 9/18/2017.
@@ -75,12 +79,21 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             imageView = itemView.findViewById(R.id.media_image);
             selectedIcon = itemView.findViewById(R.id.img_selected);
 
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    presenter.onMediaItemClick(mediaList.get(getLayoutPosition()), getLayoutPosition());
-                }
-            });
+            RxView.clicks(imageView).throttleFirst(2, TimeUnit.SECONDS).
+                    subscribe(new Consumer<Object>() {
+
+                        @Override
+                        public void accept(Object o) throws Exception {
+                            presenter.onMediaItemClick(mediaList.get(getLayoutPosition()), getLayoutPosition());
+                        }
+                    });
+
+//            imageView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//
+//                }
+//            });
 
             imageView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override

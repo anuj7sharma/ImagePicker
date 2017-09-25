@@ -4,4 +4,6 @@
     <string name="action_count">Count</string>
     <string name="action_crop">Crop</string>
     <string name="title_crop_image">Crop Image</string>
+    <string name="desc_media_item">Media Item</string>
+    <string name="desc_selected">selected</string>
 </resources>
