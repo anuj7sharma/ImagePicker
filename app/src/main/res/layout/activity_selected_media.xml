@@ -7,23 +7,36 @@
 
     <include layout="@layout/layout_toolbar" />
 
-    <RelativeLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <fragment
-            android:id="@+id/media_container"
-            class="com.imagepicker.ui.selectedMedia.SingleMediaFragment"
+        <android.support.v4.view.ViewPager
+            android:id="@+id/selected_viewpager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/recycler_selected_media" />
+            android:background="@color/white" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_selected_media"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_alignParentBottom="true"
+            android:layout_height="@dimen/def_media_icon_small"
+            android:layout_gravity="bottom"
             android:padding="@dimen/margin_4" />
-    </RelativeLayout>
+    </FrameLayout>
+    <!-- <RelativeLayout
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         >
+
+         <fragment
+             android:id="@+id/media_container"
+             class="com.imagepicker.ui.selectedMedia.SingleMediaFragment"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:layout_above="@+id/recycler_selected_media" />
+
+
+     </RelativeLayout>-->
 </android.support.design.widget.CoordinatorLayout>

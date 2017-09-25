@@ -14,6 +14,7 @@ import com.imagepicker.ui.mediaList.MediaListPresenter;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,6 +37,10 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
+    public List<MediaItemBean> getList() {
+        return (mediaList == null) ? mediaList = new ArrayList<>() : mediaList;
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         @SuppressLint("InflateParams")
@@ -47,7 +52,7 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof MediaHolder) {
             MediaHolder vh = (MediaHolder) holder;
-            MediaItemBean obj =  mediaList.get(position);
+            MediaItemBean obj = mediaList.get(position);
             Picasso.with(context).load(new File(obj.getMediaPath())).placeholder(R.drawable.ic_def_image).resize(300, 300).centerCrop().into(vh.imageView);
             if (obj.isSelected()) {
                 vh.selectedIcon.setVisibility(View.VISIBLE);
@@ -67,8 +72,8 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         MediaHolder(View itemView) {
             super(itemView);
-            imageView =  itemView.findViewById(R.id.media_image);
-            selectedIcon =  itemView.findViewById(R.id.img_selected);
+            imageView = itemView.findViewById(R.id.media_image);
+            selectedIcon = itemView.findViewById(R.id.img_selected);
 
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -6,13 +6,10 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,9 +22,20 @@ import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.PermissionsAndroid;
 import com.imagepicker.utils.SpacesItemDecoration;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
+import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * auther Anuj Sharma on 9/18/2017.
@@ -38,7 +46,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
 
     private MediaListActivity mediaListActivity;
     private MediaListView mediaListView;
-    private List<MediaItemBean> mediaList;
+    //    private List<MediaItemBean> mediaList;
     private HashMap<String, MediaItemBean> selectedMediaMap;
     private MediaListAdapter adapter;
 
@@ -108,36 +116,47 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     }
 
     @Override
-    public void onMediaItemClick(MediaItemBean obj, int position) {
+    public void onMediaItemClick(final MediaItemBean obj, final int position) {
         //select
         if (selectedMediaMap == null) selectedMediaMap = new HashMap<>();
-        try {
-            if (obj.isSelected()) {
-                obj.setSelected(false);
-                selectedMediaMap.remove(obj.getId());
-            } else {
-                obj.setSelected(true);
-                selectedMediaMap.put(obj.getId(), obj);
-            }
-            mediaList.set(position, obj);
-            adapter.updateList(mediaList);
+        Single.just(obj)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<MediaItemBean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        System.out.println("on subscribe-> " + d.isDisposed());
+                    }
 
+                    @Override
+                    public void onSuccess(MediaItemBean mediaItemBean) {
+                        if (mediaItemBean.isSelected()) {
+                            mediaItemBean.setSelected(false);
+                            selectedMediaMap.remove(mediaItemBean.getId());
+                        } else {
+                            mediaItemBean.setSelected(true);
+                            selectedMediaMap.put(mediaItemBean.getId(), mediaItemBean);
+                        }
+                        adapter.getList().set(position, mediaItemBean);
+                        adapter.updateList(adapter.getList());
 
-            //update selected media count on toolbar
-            mediaListActivity.getSupportActionBar().setTitle(R.string.app_name);
-            mediaListActivity.count.setTitle(String.valueOf(selectedMediaMap.size()));
-            if (selectedMediaMap.size() > 0) {
-                mediaListActivity.count.setVisible(true);
-                mediaListActivity.save.setVisible(true);
-            } else {
-                mediaListActivity.count.setVisible(false);
-                mediaListActivity.save.setVisible(false);
-            }
+                        //update selected media count on toolbar
+                        mediaListActivity.getSupportActionBar().setTitle(R.string.app_name);
+                        mediaListActivity.count.setTitle(String.valueOf(selectedMediaMap.size()));
+                        if (selectedMediaMap.size() > 0) {
+                            mediaListActivity.count.setVisible(true);
+                            mediaListActivity.save.setVisible(true);
+                        } else {
+                            mediaListActivity.count.setVisible(false);
+                            mediaListActivity.save.setVisible(false);
+                        }
+                    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+                    @Override
+                    public void onError(Throwable e) {
+                        System.out.println("Error-> " + e.getMessage());
+                    }
+                });
         System.out.println("Select Id-> " + obj.getId());
     }
 
@@ -155,38 +174,49 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        String imagePath;
-        mediaList = new ArrayList<>();
-        if (data != null) {
+    public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
+        if (data != null)
+            Single.just(data)
+                    .flatMapObservable(new Function<Cursor, ObservableSource<MediaItemBean>>() {
+                        @Override
+                        public ObservableSource<MediaItemBean> apply(final Cursor data) throws Exception {
+                            return Observable.create(new ObservableOnSubscribe<MediaItemBean>() {
+                                @Override
+                                public void subscribe(ObservableEmitter<MediaItemBean> e) throws Exception {
+                                    while (data.moveToNext()) {
+                                        int id = data.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+                                        int mediaData = data.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                                        int mediaName = data.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
+                                        int mimeType = data.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE);
+                                        int mediaSize = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE);
+                                        String imagePath = data.getString(mediaData);
+                                        System.out.println("Path-> " + imagePath);
+                                        MediaItemBean obj = new MediaItemBean();
+                                        obj.setId(data.getString(id));
+                                        obj.setMediaName(data.getString(mediaName));
+                                        obj.setMediaPath(data.getString(mediaData));
+                                        obj.setMimeType(data.getString(mimeType));
+                                        obj.setMediaSize(data.getLong(mediaSize));
+                                        e.onNext(obj);
+                                    }
+                                    e.onComplete();
+                                }
+                            }).subscribeOn(Schedulers.computation());
+                        }
+                    }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                    .toList()
+                    .subscribe(new DisposableSingleObserver<List<MediaItemBean>>() {
+                        @Override
+                        public void onSuccess(List<MediaItemBean> mediaItemBeans) {
+                            adapter.getList().addAll(mediaItemBeans);
+                            adapter.updateList(adapter.getList());
+                        }
 
-            while (data.moveToNext()) {
-                int id = data.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
-                int mediaData = data.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-//                int title = data.getColumnIndexOrThrow(MediaStore.Images.Media.TITLE);
-                int mediaName = data.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
-                int mimeType = data.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE);
-//                int mediaType = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
-                int mediaSize = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE);
-                imagePath = data.getString(mediaData);
-                System.out.println("Path-> " + imagePath);
-                MediaItemBean obj = new MediaItemBean();
-                obj.setId(data.getString(id));
-                obj.setMediaName(data.getString(mediaName));
-                obj.setMediaPath(data.getString(mediaData));
-                obj.setMimeType(data.getString(mimeType));
-                obj.setMediaSize(data.getLong(mediaSize));
-                mediaList.add(obj);
-            }
-            if (mediaList.size() > 0) {
-                updateMediaList(mediaList);
-            }
+                        @Override
+                        public void onError(Throwable e) {
 
-        }
-    }
-
-    private void updateMediaList(List<MediaItemBean> mediaList) {
-        adapter.updateList(mediaList);
+                        }
+                    });
     }
 
     @Override

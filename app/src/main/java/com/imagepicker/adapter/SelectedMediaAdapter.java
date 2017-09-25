@@ -14,6 +14,7 @@ import com.imagepicker.ui.selectedMedia.SelectedMediaPresenter;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,6 +25,7 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
     private Context context;
     private List<MediaItemBean> mediaList;
     private SelectedMediaPresenter presenter;
+    public int selectedItem = -1;
 
     public SelectedMediaAdapter(Context context, List<MediaItemBean> mediaList, SelectedMediaPresenter listener) {
         this.context = context;
@@ -31,10 +33,20 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
         this.presenter = listener;
     }
 
+    public List<MediaItemBean> getList() {
+        if (mediaList == null) mediaList = new ArrayList<>();
+        return mediaList;
+    }
+
+    public void updateList(List<MediaItemBean> mediaList) {
+        this.mediaList = mediaList;
+        notifyDataSetChanged();
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         @SuppressLint("InflateParams")
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_media_item, null);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_selected_media, null);
         return new SelectedMediaHolder(view);
     }
 
@@ -43,8 +55,14 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (holder instanceof SelectedMediaHolder) {
             SelectedMediaHolder vh = (SelectedMediaHolder) holder;
             MediaItemBean obj = mediaList.get(position);
-            Picasso.with(context).load(new File(obj.getMediaPath())).placeholder(R.drawable.ic_def_image).resize(250, 150).centerCrop().into(vh.imageView);
+            Picasso.with(context).load(new File(obj.getMediaPath())).placeholder(R.drawable.ic_def_image).
+                    resize(50, 50).centerCrop().into(vh.imageView);
 
+            if (selectedItem == position) {
+                vh.viewSelected.setVisibility(View.VISIBLE);
+            } else {
+                vh.viewSelected.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -54,22 +72,21 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     private class SelectedMediaHolder extends RecyclerView.ViewHolder {
-        private ImageView imageView, selectedIcon;
+        private ImageView imageView;
         private View viewSelected;
 
-        private  SelectedMediaHolder(View itemView) {
+        private SelectedMediaHolder(View itemView) {
             super(itemView);
-            imageView =  itemView.findViewById(R.id.media_image);
-            selectedIcon =  itemView.findViewById(R.id.img_selected);
-            viewSelected =  itemView.findViewById(R.id.selected_view);
-            selectedIcon.setVisibility(View.GONE);
-            viewSelected.setVisibility(View.GONE);
+            imageView = itemView.findViewById(R.id.media_image);
+            viewSelected = itemView.findViewById(R.id.selected_view);
 
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (presenter != null)
+                    if (presenter != null) {
+                        selectedItem = getLayoutPosition();
                         presenter.onMediaClick(mediaList.get(getLayoutPosition()), getLayoutPosition());
+                    }
                 }
             });
 

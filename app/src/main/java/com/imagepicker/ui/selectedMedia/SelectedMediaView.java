@@ -1,5 +1,6 @@
 package com.imagepicker.ui.selectedMedia;
 
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
@@ -10,7 +11,8 @@ import android.support.v7.widget.Toolbar;
 public interface SelectedMediaView {
     Toolbar getToolbar();
 
+    ViewPager getSelectedViewPager();
+
     RecyclerView getSelectedMediaRecycler();
 
-    SingleMediaFragment getSelectedContainer();
 }

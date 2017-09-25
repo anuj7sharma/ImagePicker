@@ -12,4 +12,8 @@ public interface SelectedMediaPresenter {
     void onMediaClick(MediaItemBean obj, int position);
 
     void onMediaLongClick(MediaItemBean obj, int position, ImageView view);
+
+    void onMediaUpSwipe();
+
+    void onMediaDownSwipe();
 }

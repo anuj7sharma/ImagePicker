@@ -31,6 +31,10 @@
             android:name=".ui.selectedMedia.SelectedMediaActivity"
             android:launchMode="singleTask"
             android:parentActivityName=".ui.mediaList.MediaListActivity" />
+
+        <activity
+            android:name=".ui.cropper.CropperActivity"
+            android:launchMode="singleTask" />
     </application>
 
 </manifest>

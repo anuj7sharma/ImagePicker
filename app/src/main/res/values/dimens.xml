@@ -18,4 +18,5 @@
     <dimen name="text_size_microcmall">10sp</dimen>
 
     <dimen name="media_item_size">150dp</dimen>
+    <dimen name="def_media_icon_small">70dp</dimen>
 </resources>
