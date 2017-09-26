@@ -2,12 +2,16 @@ package com.imagepicker.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.Request;
 import com.imagepicker.R;
 import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.ui.mediaList.MediaListPresenter;
@@ -57,7 +61,13 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (holder instanceof MediaHolder) {
             MediaHolder vh = (MediaHolder) holder;
             MediaItemBean obj = mediaList.get(position);
-            Picasso.with(context).load(new File(obj.getMediaPath())).placeholder(R.drawable.ic_def_image).resize(300, 300).centerCrop().into(vh.imageView);
+//            Picasso.with(context).load(new File(obj.getMediaPath())).placeholder(R.drawable.ic_def_image).resize(300, 300).centerCrop().into(vh.imageView);
+
+            Glide.with(context).load(new File(obj.getMediaPath()))
+                    .transition(new DrawableTransitionOptions().crossFade(400))
+                    .into(vh.imageView)
+                    .onLoadFailed(ContextCompat.getDrawable(context,R.drawable.ic_def_image));
+
             if (obj.isSelected()) {
                 vh.selectedIcon.setVisibility(View.VISIBLE);
             } else {

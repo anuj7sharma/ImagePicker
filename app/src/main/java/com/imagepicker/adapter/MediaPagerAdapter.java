@@ -1,14 +1,25 @@
 package com.imagepicker.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import com.bumptech.glide.GenericTransitionOptions;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.Request;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.imagepicker.R;
 import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.ui.selectedMedia.SelectedMediaPresenter;
@@ -64,7 +75,7 @@ public class MediaPagerAdapter extends PagerAdapter {
         View itemView = LayoutInflater.from(container.getContext()).inflate(R.layout.view_selected_image, container, false);
         final ProgressBar progressBar = (ProgressBar) itemView.findViewById(R.id.progress_bar);
         final ImageView selectedImage = itemView.findViewById(R.id.selected_image);
-        Picasso.with(context).load(new File(mediaItemBeanList.get(position).getMediaPath())).into(selectedImage, new Callback() {
+        /*Picasso.with(context).load(new File(mediaItemBeanList.get(position).getMediaPath())).into(selectedImage, new Callback() {
             @Override
             public void onSuccess() {
                 progressBar.setVisibility(View.GONE);
@@ -75,7 +86,69 @@ public class MediaPagerAdapter extends PagerAdapter {
                 selectedImage.setImageResource(R.drawable.ic_def_image);
                 progressBar.setVisibility(View.GONE);
             }
-        });
+        });*/
+        Glide.with(context).load(new File(mediaItemBeanList.get(position).getMediaPath()))
+                .into(selectedImage)
+                .setRequest(new Request() {
+                    @Override
+                    public void begin() {
+
+                    }
+
+                    @Override
+                    public void pause() {
+
+                    }
+
+                    @Override
+                    public void clear() {
+
+                    }
+
+                    @Override
+                    public boolean isPaused() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isRunning() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isComplete() {
+                        progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isResourceSet() {
+                        progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isCancelled() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isFailed() {
+                        progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public void recycle() {
+
+                    }
+
+                    @Override
+                    public boolean isEquivalentTo(Request other) {
+                        return false;
+                    }
+                });
+
 
         // Add view_selected_image.xml to ViewPager
         container.addView(itemView);

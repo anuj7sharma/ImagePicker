@@ -21,7 +21,7 @@ import android.graphics.BitmapRegionDecoder;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.media.ExifInterface;
+import android.support.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
@@ -79,7 +79,6 @@ final class BitmapUtils {
      * If no rotation is required the image will not be rotated.<br>
      * New bitmap is created and the old one is recycled.
      */
-    @android.support.annotation.RequiresApi(api = Build.VERSION_CODES.N)
     static RotateBitmapResult rotateBitmapByExif(Bitmap bitmap, Context context, Uri uri) {
         ExifInterface ei = null;
         try {

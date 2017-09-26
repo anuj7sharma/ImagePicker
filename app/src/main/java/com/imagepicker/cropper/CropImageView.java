@@ -21,10 +21,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.media.ExifInterface;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -903,10 +903,8 @@ public class CropImageView extends FrameLayout {
      * <br>
      * The EXIF can be retrieved by doing the following:
      * <code>ExifInterface exif = new ExifInterface(path);</code>
-     *
-     * @param bitmap the original bitmap to set; if null, this
-     * @param exif the EXIF information about this bitmap; may be null
-     */
+     *  @param bitmap the original bitmap to set; if null, this
+     * @param exif the EXIF information about this bitmap; may be null*/
     public void setImageBitmap(Bitmap bitmap, ExifInterface exif) {
         Bitmap setBitmap;
         int degreesRotated = 0;

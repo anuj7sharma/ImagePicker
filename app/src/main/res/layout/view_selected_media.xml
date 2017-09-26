@@ -20,7 +20,7 @@
             android:id="@+id/media_image"
             android:layout_width="@dimen/def_media_icon_small"
             android:layout_height="@dimen/def_media_icon_small"
-            android:scaleType="centerCrop"
+            android:scaleType="fitCenter"
             android:src="@drawable/ic_def_image" />
     </RelativeLayout>
 
