@@ -1,12 +1,15 @@
 package com.imagepicker.ui.selectedMedia;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,7 +21,13 @@ import com.imagepicker.ui.cropper.CropperActivity;
 import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.DetailViewPagerTransformer;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * auther Anuj Sharma on 9/21/2017.
@@ -30,6 +39,7 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
     private Toolbar toolbar;
     private ViewPager selectedViewPager;
     private RecyclerView selectedMediaRecycler;
+    public static final int CROP_IMAGE_REQUEST_CODE = 501;
 
 
     @Override
@@ -42,12 +52,17 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_delete:
+                if (presenterImpl != null) {
+                    presenterImpl.deleteMedia();
+                }
+                break;
             case R.id.action_crop:
                 //Move to Seperate Activity for Cropping
                 if (SelectedMediaActivity.this.presenterImpl.getSelectedMediaObj() != null) {
                     Intent intent = new Intent(this, CropperActivity.class);
                     intent.putExtra(Constants.SELECTED_MEDIA_LIST_OBJ, SelectedMediaActivity.this.presenterImpl.getSelectedMediaObj());
-                    startActivity(intent);
+                    startActivityForResult(intent, CROP_IMAGE_REQUEST_CODE);
                 }
                 break;
             case R.id.action_save:
@@ -86,6 +101,23 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
 //        fragmentTransaction.replace(R.id.media_container, singleMediaFragment);
 //        fragmentTransaction.commit();
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        /*if (resultCode == RESULT_OK) {
+            if (requestCode == CROP_IMAGE_REQUEST_CODE) {
+                if (data.getExtras() != null) {
+                    Bitmap croppedBitmap = (Bitmap) data.getExtras().get("data");
+                    System.out.println("Cropped Bitmap-> " + croppedBitmap);
+
+                    System.out.println("on activity result called, save cropped image here");
+                }
+            }
+        }*/
+        if (presenterImpl != null)
+            presenterImpl.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

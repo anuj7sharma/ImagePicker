@@ -33,6 +33,8 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
         this.presenter = listener;
     }
 
+
+
     public List<MediaItemBean> getList() {
         if (mediaList == null) mediaList = new ArrayList<>();
         return mediaList;

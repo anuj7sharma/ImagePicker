@@ -1,5 +1,11 @@
 package com.imagepicker.ui.selectedMedia;
 
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,9 +18,20 @@ import com.imagepicker.adapter.SelectedMediaAdapter;
 import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.utils.SpacesItemDecoration;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * auther Anuj Sharma on 9/21/2017.
@@ -24,7 +41,8 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
 
     private SelectedMediaActivity selectedMediaActivity;
     private SelectedMediaView selectedMediaView;
-    private HashMap<String, MediaItemBean> selectedMediaMap;
+    private List<MediaItemBean> selectedMediaList;
+//    private HashMap<String, MediaItemBean> selectedMediaMap;
 
     private SelectedMediaAdapter adapter;
 
@@ -33,7 +51,7 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
     SelectedMediaPresenterImpl(SelectedMediaActivity selectedMediaActivity, SelectedMediaView selectedMediaView, HashMap<String, MediaItemBean> selectedMediaMap) {
         this.selectedMediaActivity = selectedMediaActivity;
         this.selectedMediaView = selectedMediaView;
-        this.selectedMediaMap = selectedMediaMap;
+        this.selectedMediaList = new ArrayList<>(selectedMediaMap.values());
         init();
     }
 
@@ -54,7 +72,6 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
         int spacingInPixels = selectedMediaActivity.getResources().getDimensionPixelSize(R.dimen.margin_4);
         selectedMediaView.getSelectedMediaRecycler().addItemDecoration(new SpacesItemDecoration(spacingInPixels));
 
-        List<MediaItemBean> selectedMediaList = new ArrayList<>(selectedMediaMap.values());
         adapter = new SelectedMediaAdapter(selectedMediaActivity, selectedMediaList, this);
         selectedMediaView.getSelectedMediaRecycler().setAdapter(adapter);
         adapter.selectedItem = 0;
@@ -83,13 +100,120 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
         });
         //set pager pagerAdapter
         pagerAdapter = new MediaPagerAdapter(selectedMediaActivity,
-                new ArrayList<>(selectedMediaMap.values()), this);
+                selectedMediaList, this);
         selectedMediaView.getSelectedViewPager().setAdapter(pagerAdapter);
     }
 
-    public MediaItemBean getSelectedMediaObj() {
+    MediaItemBean getSelectedMediaObj() {
         if (selectedMediaView.getSelectedViewPager() != null && adapter != null) {
             return adapter.getList().get(selectedMediaView.getSelectedViewPager().getCurrentItem());
+        }
+        return null;
+    }
+
+    /*
+    Delete Selected current Media
+     */
+    void deleteMedia() {
+        if (adapter != null && selectedMediaView.getSelectedViewPager() != null && pagerAdapter != null) {
+            //get current position
+            int position = selectedMediaView.getSelectedViewPager().getCurrentItem();
+            selectedMediaList.remove(position);
+            adapter.updateList(selectedMediaList);
+            ((MediaPagerAdapter) pagerAdapter).updateList(selectedMediaList);
+            //set broadcast so that mediaList items can also be removed
+
+            if (adapter.getList().size() == 0) {
+                //reset all view
+                selectedMediaActivity.finish();
+            } else {
+                //update adapter
+                if (adapter.selectedItem > 0) {
+                    adapter.selectedItem = position - 1;
+                    selectedMediaView.getSelectedViewPager().setCurrentItem(adapter.selectedItem);
+                } else {
+                    adapter.selectedItem = 0;
+                    selectedMediaView.getSelectedViewPager().setCurrentItem(0);
+                }
+
+            }
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == selectedMediaActivity.CROP_IMAGE_REQUEST_CODE) {
+                if (data.getData() == null) {
+                    return;
+                }
+                saveCroppedImage(data.getData().toString());
+            }
+        }
+    }
+
+    private void saveCroppedImage(final String croppedPath) {
+        System.out.println("Cropped Path-> " + croppedPath);
+        final int position = selectedMediaView.getSelectedViewPager().getCurrentItem();
+        File croppedFile = saveMediaToDirectory(selectedMediaActivity, selectedMediaList.get(position).getMediaName());
+
+        if (croppedFile != null) {
+            Single.just(croppedFile)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new SingleObserver<File>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onSuccess(File file) {
+                            FileOutputStream out = null;
+                            try {
+                                out = new FileOutputStream(file);
+                                Bitmap bitmap = MediaStore.Images.Media.getBitmap(selectedMediaActivity.getContentResolver(), Uri.parse(croppedPath));
+                                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+                                // PNG is a lossless format, the compression factor (100) is ignored
+
+                                //update adapter
+                                selectedMediaList.get(position).setMediaPath(file.getAbsolutePath());
+                                adapter.updateList(selectedMediaList);
+                                ((MediaPagerAdapter) pagerAdapter).updateList(selectedMediaList);
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            } finally {
+                                try {
+                                    if (out != null) {
+                                        out.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+                    });
+        }
+    }
+
+    private File saveMediaToDirectory(Context ctx, String name) {
+        File dir = new File(Environment.getExternalStorageDirectory() + File.separator +
+                ctx.getString(R.string.app_name) + File.separator + ctx.getString(R.string.folder_name_crop));
+        if (!dir.isDirectory()) {
+            dir.mkdirs();
+        }
+        File file = new File(dir, name);
+        if (file.isFile()) file.delete();
+        try {
+            file.createNewFile();
+            return file;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -97,13 +221,6 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
     @Override
     public void onMediaClick(MediaItemBean obj, int position) {
         if (obj != null) {
-            /*if (obj.isSelected()) {
-                obj.setSelected(false);
-            } else {
-                obj.setSelected(true);
-            }*/
-//            adapter.getList().set(position, obj);
-//            adapter.updateList(adapter.getList());
             selectedMediaView.getSelectedViewPager().setCurrentItem(position);
             adapter.notifyDataSetChanged();
         }
@@ -123,4 +240,6 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
     public void onMediaDownSwipe() {
 
     }
+
+
 }

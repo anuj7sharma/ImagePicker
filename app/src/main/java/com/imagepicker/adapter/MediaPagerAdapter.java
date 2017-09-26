@@ -16,6 +16,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,11 +27,21 @@ public class MediaPagerAdapter extends PagerAdapter {
     Context context;
     List<MediaItemBean> mediaItemBeanList;
     SelectedMediaPresenter presenter;
+    public MediaPagerAdapter(){
 
+    }
     public MediaPagerAdapter(Context context, List<MediaItemBean> medialist, SelectedMediaPresenter presenter) {
         this.context = context;
         this.mediaItemBeanList = medialist;
         this.presenter = presenter;
+    }
+    public List<MediaItemBean> getList(){
+        if(mediaItemBeanList==null)mediaItemBeanList = new ArrayList<>();
+        return mediaItemBeanList;
+    }
+    public void updateList(List<MediaItemBean> medialist){
+        this.mediaItemBeanList = medialist;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -41,6 +52,11 @@ public class MediaPagerAdapter extends PagerAdapter {
     @Override
     public boolean isViewFromObject(View view, Object object) {
         return view == object;
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
     }
 
     @Override
