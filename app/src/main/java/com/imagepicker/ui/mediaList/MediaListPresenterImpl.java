@@ -77,7 +77,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
 
     private void init() {
         mediaListActivity.setSupportActionBar(mediaListView.getToolbar());
-        mediaListActivity.getSupportActionBar().setTitle(mediaListActivity.getString(R.string.app_name));
+        mediaListActivity.getSupportActionBar().setTitle("");
         mediaListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mediaListView.getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -219,7 +219,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                                 }
                             }).subscribeOn(Schedulers.computation());
                         }
-                    }).subscribeOn(Schedulers.io())
+                    })
                     .observeOn(AndroidSchedulers.mainThread())
                     .toList()
                     .subscribe(new DisposableSingleObserver<List<MediaItemBean>>() {

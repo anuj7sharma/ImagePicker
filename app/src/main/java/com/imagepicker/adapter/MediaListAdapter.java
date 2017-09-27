@@ -9,7 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.common.ResizeOptions;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.imagepicker.R;
 import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.ui.mediaList.MediaListPresenter;
@@ -55,10 +60,10 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             MediaItemBean obj = mediaList.get(position);
 
             Uri uri = Uri.fromFile(new File(obj.getMediaPath()));
-            vh.imageView.setImageURI(uri);
-            /*ImageRequest imageRequest = ImageRequestBuilder
+//            vh.imageView.setImageURI(uri);
+            ImageRequest imageRequest = ImageRequestBuilder
                     .newBuilderWithSource(uri)
-                    .setResizeOptions(new ResizeOptions(150, 150))
+                    .setResizeOptions(new ResizeOptions(300, 300))
                     .setProgressiveRenderingEnabled(true)
                     .setLocalThumbnailPreviewsEnabled(true)
                     .build();
@@ -66,10 +71,9 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             DraweeController controller = Fresco.newDraweeControllerBuilder()
                     .setImageRequest(imageRequest)
                     .setOldController(vh.imageView.getController())
-                    .setAutoPlayAnimations(false)
+                    .setAutoPlayAnimations(true)
                     .build();
-//            boolean inMemoryCache = Fresco.getImagePipeline().isInBitmapMemoryCache(uri);
-            vh.imageView.setController(controller);*/
+            vh.imageView.setController(controller);
 
             if (obj.isSelected()) {
                 vh.selectedIcon.setVisibility(View.VISIBLE);

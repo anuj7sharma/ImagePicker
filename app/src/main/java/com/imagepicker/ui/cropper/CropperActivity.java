@@ -23,6 +23,11 @@ import com.imagepicker.utils.PermissionsAndroid;
 import java.io.File;
 import java.io.IOException;
 
+import io.reactivex.Completable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
+import io.reactivex.schedulers.Schedulers;
+
 /**
  * author by Anuj Sharma on 9/25/2017.
  */
@@ -140,13 +145,20 @@ public class CropperActivity extends AppCompatActivity implements CropImageView.
      * Execute crop image and save the result tou output uri.
      */
     protected void cropImage() {
-        Uri outputUri = getOutputUri();
-        cropImageView.saveCroppedImageAsync(outputUri,
-                cropImageOptions.outputCompressFormat,
-                cropImageOptions.outputCompressQuality,
-                cropImageOptions.outputRequestWidth,
-                cropImageOptions.outputRequestHeight,
-                cropImageOptions.outputRequestSizeOptions);
+        Completable.fromAction(new Action() {
+            @Override
+            public void run() throws Exception {
+                Uri outputUri = getOutputUri();
+                cropImageView.saveCroppedImageAsync(outputUri,
+                        cropImageOptions.outputCompressFormat,
+                        cropImageOptions.outputCompressQuality,
+                        cropImageOptions.outputRequestWidth,
+                        cropImageOptions.outputRequestHeight,
+                        cropImageOptions.outputRequestSizeOptions);
+            }
+        }).subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
     }
 
     protected void rotateImage(int degrees) {

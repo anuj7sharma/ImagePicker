@@ -7,7 +7,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.common.ResizeOptions;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.imagepicker.R;
 import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.ui.selectedMedia.SelectedMediaPresenter;
@@ -56,7 +62,21 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
             SelectedMediaHolder vh = (SelectedMediaHolder) holder;
             MediaItemBean obj = mediaList.get(position);
 
-            vh.imageView.setImageURI(Uri.fromFile(new File(obj.getMediaPath())));
+//            vh.imageView.setImageURI(Uri.fromFile(new File(obj.getMediaPath())));
+            Uri uri = Uri.fromFile(new File(obj.getMediaPath()));
+            ImageRequest imageRequest = ImageRequestBuilder
+                    .newBuilderWithSource(uri)
+                    .setResizeOptions(new ResizeOptions(150, 150))
+                    .setProgressiveRenderingEnabled(true)
+                    .setLocalThumbnailPreviewsEnabled(true)
+                    .build();
+
+            DraweeController controller = Fresco.newDraweeControllerBuilder()
+                    .setImageRequest(imageRequest)
+                    .setOldController(vh.imageView.getController())
+                    .setAutoPlayAnimations(true)
+                    .build();
+            vh.imageView.setController(controller);
 
             if (selectedItem == position) {
                 vh.viewSelected.setVisibility(View.VISIBLE);
