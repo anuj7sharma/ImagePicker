@@ -2,40 +2,32 @@ package com.imagepicker.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.bumptech.glide.request.Request;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.imagepicker.R;
 import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.ui.mediaList.MediaListPresenter;
-import com.jakewharton.rxbinding2.view.RxView;
-import com.squareup.picasso.Picasso;
+import com.imagepicker.utils.RecyclerViewFastScroller;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.functions.Consumer;
 
 /**
  * auther Anuj Sharma on 9/18/2017.
  */
 
-public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private Context context;
+public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements RecyclerViewFastScroller.BubbleTextGetter {
     private List<MediaItemBean> mediaList;
     private MediaListPresenter presenter;
 
-    public MediaListAdapter(Context context, List<MediaItemBean> mediaList, MediaListPresenter listener) {
-        this.context = context;
+    public MediaListAdapter(List<MediaItemBean> mediaList, MediaListPresenter listener) {
         this.mediaList = mediaList;
         this.presenter = listener;
     }
@@ -61,12 +53,23 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (holder instanceof MediaHolder) {
             MediaHolder vh = (MediaHolder) holder;
             MediaItemBean obj = mediaList.get(position);
-//            Picasso.with(context).load(new File(obj.getMediaPath())).placeholder(R.drawable.ic_def_image).resize(300, 300).centerCrop().into(vh.imageView);
 
-            Glide.with(context).load(new File(obj.getMediaPath()))
-                    .transition(new DrawableTransitionOptions().crossFade(400))
-                    .into(vh.imageView)
-                    .onLoadFailed(ContextCompat.getDrawable(context,R.drawable.ic_def_image));
+            Uri uri = Uri.fromFile(new File(obj.getMediaPath()));
+            vh.imageView.setImageURI(uri);
+            /*ImageRequest imageRequest = ImageRequestBuilder
+                    .newBuilderWithSource(uri)
+                    .setResizeOptions(new ResizeOptions(150, 150))
+                    .setProgressiveRenderingEnabled(true)
+                    .setLocalThumbnailPreviewsEnabled(true)
+                    .build();
+
+            DraweeController controller = Fresco.newDraweeControllerBuilder()
+                    .setImageRequest(imageRequest)
+                    .setOldController(vh.imageView.getController())
+                    .setAutoPlayAnimations(false)
+                    .build();
+//            boolean inMemoryCache = Fresco.getImagePipeline().isInBitmapMemoryCache(uri);
+            vh.imageView.setController(controller);*/
 
             if (obj.isSelected()) {
                 vh.selectedIcon.setVisibility(View.VISIBLE);
@@ -81,29 +84,36 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return (mediaList == null) ? 0 : mediaList.size();
     }
 
+    @Override
+    public String getTextToShowInBubble(int pos) {
+//        return (mediaList == null) ? "" : mediaList.get(pos).getMediaType();
+        return "";
+    }
+
     private class MediaHolder extends RecyclerView.ViewHolder {
-        private ImageView imageView, selectedIcon;
+        private ImageView selectedIcon;
+        private SimpleDraweeView imageView;
 
         MediaHolder(View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.media_image);
             selectedIcon = itemView.findViewById(R.id.img_selected);
 
-            RxView.clicks(imageView).throttleFirst(2, TimeUnit.SECONDS).
-                    subscribe(new Consumer<Object>() {
-
-                        @Override
-                        public void accept(Object o) throws Exception {
-                            presenter.onMediaItemClick(mediaList.get(getLayoutPosition()), getLayoutPosition());
-                        }
-                    });
-
-//            imageView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
+//            RxView.clicks(imageView).throttleFirst(200, TimeUnit.MICROSECONDS).
+//                    subscribe(new Consumer<Object>() {
 //
-//                }
-//            });
+//                        @Override
+//                        public void accept(Object o) throws Exception {
+//                            presenter.onMediaItemClick(mediaList.get(getLayoutPosition()), getLayoutPosition());
+//                        }
+//                    });
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    presenter.onMediaItemClick(mediaList.get(getLayoutPosition()), getLayoutPosition());
+                }
+            });
 
             imageView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -114,4 +124,5 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             });
         }
     }
+
 }

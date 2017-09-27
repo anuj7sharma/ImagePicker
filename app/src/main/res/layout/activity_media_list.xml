@@ -7,10 +7,28 @@
 
     <include layout="@layout/layout_toolbar" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/media_recycler"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/light_gray"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/media_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/light_gray"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+        <com.imagepicker.utils.RecyclerViewFastScroller
+            android:id="@+id/fastscroller"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignBottom="@id/media_recycler"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@id/media_recycler"
+            android:visibility="visible" />
+    </RelativeLayout>
+
+
 </android.support.design.widget.CoordinatorLayout>

@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.SparseArray;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -22,7 +23,8 @@ import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.PermissionsAndroid;
 import com.imagepicker.utils.SpacesItemDecoration;
 
-import java.util.HashMap;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -46,8 +48,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
 
     private MediaListActivity mediaListActivity;
     private MediaListView mediaListView;
-    //    private List<MediaItemBean> mediaList;
-    private HashMap<String, MediaItemBean> selectedMediaMap;
+    private SparseArray<MediaItemBean> selectedMediaMap;
     private MediaListAdapter adapter;
 
     //Variables related to Media Projections
@@ -89,8 +90,13 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
         mediaListView.getRecyclerView().setLayoutManager(sm);
         int spacingInPixels = mediaListActivity.getResources().getDimensionPixelSize(R.dimen.margin_4);
         mediaListView.getRecyclerView().addItemDecoration(new SpacesItemDecoration(spacingInPixels));
-        adapter = new MediaListAdapter(mediaListActivity, null, this);
+        adapter = new MediaListAdapter(null, this);
         mediaListView.getRecyclerView().setAdapter(adapter);
+
+        mediaListView.getFastScroller().setRecyclerView(mediaListView.getRecyclerView());
+        mediaListView.getFastScroller().setViewsToUse(R.layout.recycler_view_fast_scroller__fast_scroller, R.id.fastscroller_bubble, R.id.fastscroller_handle);
+
+
         fetchMediaFiles();
     }
 
@@ -112,7 +118,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     @Override
     public void onMediaItemClick(final MediaItemBean obj, final int position) {
         //select
-        if (selectedMediaMap == null) selectedMediaMap = new HashMap<>();
+        if (selectedMediaMap == null) selectedMediaMap = new SparseArray<>();
         Single.just(obj)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -126,10 +132,10 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                     public void onSuccess(MediaItemBean mediaItemBean) {
                         if (mediaItemBean.isSelected()) {
                             mediaItemBean.setSelected(false);
-                            selectedMediaMap.remove(mediaItemBean.getId());
+                            selectedMediaMap.remove(Integer.parseInt(mediaItemBean.getId()));
                         } else {
                             mediaItemBean.setSelected(true);
-                            selectedMediaMap.put(mediaItemBean.getId(), mediaItemBean);
+                            selectedMediaMap.put(Integer.parseInt(mediaItemBean.getId()), mediaItemBean);
                         }
                         adapter.getList().set(position, mediaItemBean);
                         adapter.updateList(adapter.getList());
@@ -188,21 +194,33 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                                         int mediaName = data.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
                                         int mimeType = data.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE);
                                         int mediaSize = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE);
-                                        String imagePath = data.getString(mediaData);
-                                        System.out.println("Path-> " + imagePath);
+                                        int dateAdded = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_ADDED);
+                                        int mediaType = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
+                                        int title = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.TITLE);
+                                        int width = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.WIDTH);
+                                        int height = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.HEIGHT);
+
+//                                        String imagePath = data.getString(mediaData);
                                         MediaItemBean obj = new MediaItemBean();
                                         obj.setId(data.getString(id));
-                                        obj.setMediaName(data.getString(mediaName));
                                         obj.setMediaPath(data.getString(mediaData));
+                                        obj.setMediaName(data.getString(mediaName));
                                         obj.setMimeType(data.getString(mimeType));
                                         obj.setMediaSize(data.getLong(mediaSize));
+                                        obj.setMediaType(data.getString(mediaType));
+                                        obj.setTitle(data.getString(title));
+                                        obj.setWidth(data.getInt(width));
+                                        obj.setHeight(data.getInt(height));
+                                        obj.setDateAdded(data.getString(dateAdded));
+
                                         e.onNext(obj);
                                     }
                                     e.onComplete();
                                 }
                             }).subscribeOn(Schedulers.computation());
                         }
-                    }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                    }).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
                     .toList()
                     .subscribe(new DisposableSingleObserver<List<MediaItemBean>>() {
                         @Override
@@ -224,9 +242,11 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     }
 
     void saveSelectedMedia() {
+        MediaItemBean obj = new MediaItemBean();
+        obj.setSeelctedItemMap(selectedMediaMap);
         //navigate selected media items to next screen.
         Intent intent = new Intent(mediaListActivity, SelectedMediaActivity.class);
-        intent.putExtra(Constants.SELECTED_MEDIA_LIST_OBJ, selectedMediaMap);
+        intent.putExtra(Constants.SELECTED_MEDIA_LIST_OBJ, obj);
         mediaListActivity.startActivity(intent);
     }
 }

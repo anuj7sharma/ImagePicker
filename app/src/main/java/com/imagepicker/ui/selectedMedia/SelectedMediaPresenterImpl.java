@@ -9,6 +9,7 @@ import android.provider.MediaStore;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.SparseArray;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -22,7 +23,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import io.reactivex.Single;
@@ -42,16 +42,19 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
     private SelectedMediaActivity selectedMediaActivity;
     private SelectedMediaView selectedMediaView;
     private List<MediaItemBean> selectedMediaList;
-//    private HashMap<String, MediaItemBean> selectedMediaMap;
 
     private SelectedMediaAdapter adapter;
 
     private PagerAdapter pagerAdapter;
 
-    SelectedMediaPresenterImpl(SelectedMediaActivity selectedMediaActivity, SelectedMediaView selectedMediaView, HashMap<String, MediaItemBean> selectedMediaMap) {
+    SelectedMediaPresenterImpl(SelectedMediaActivity selectedMediaActivity, SelectedMediaView selectedMediaView, SparseArray<MediaItemBean> selectedMediaMap) {
         this.selectedMediaActivity = selectedMediaActivity;
         this.selectedMediaView = selectedMediaView;
-        this.selectedMediaList = new ArrayList<>(selectedMediaMap.values());
+        if(this.selectedMediaList==null)this.selectedMediaList = new ArrayList<>();
+        for (int i=0;i<selectedMediaMap.size();i++){
+            int key = selectedMediaMap.keyAt(i);
+            this.selectedMediaList.add(selectedMediaMap.get(key));
+        }
         init();
     }
 

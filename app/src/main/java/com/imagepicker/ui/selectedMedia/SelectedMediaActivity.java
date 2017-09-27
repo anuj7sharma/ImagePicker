@@ -1,15 +1,13 @@
 package com.imagepicker.ui.selectedMedia;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,13 +19,7 @@ import com.imagepicker.ui.cropper.CropperActivity;
 import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.DetailViewPagerTransformer;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.HashMap;
-
-import static android.content.ContentValues.TAG;
+import java.util.LinkedHashMap;
 
 /**
  * auther Anuj Sharma on 9/21/2017.
@@ -35,7 +27,6 @@ import static android.content.ContentValues.TAG;
 
 public class SelectedMediaActivity extends AppCompatActivity implements SelectedMediaView {
     private SelectedMediaPresenterImpl presenterImpl;
-    private HashMap<String, MediaItemBean> selectedMediaMap;
     private Toolbar toolbar;
     private ViewPager selectedViewPager;
     private RecyclerView selectedMediaRecycler;
@@ -76,15 +67,10 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selected_media);
-        if (getIntent() != null && getIntent().getSerializableExtra(Constants.SELECTED_MEDIA_LIST_OBJ) != null) {
-            selectedMediaMap = (HashMap<String, MediaItemBean>) getIntent().getSerializableExtra(Constants.SELECTED_MEDIA_LIST_OBJ);
-            //reset isSelected parameter
-            /*if (selectedMediaMap != null && selectedMediaMap.size() > 0) {
-                for (Map.Entry<String, MediaItemBean> entry : selectedMediaMap.entrySet()) {
-                    entry.getValue().setSelected(false);
-                    selectedMediaMap.put(entry.getKey(), entry.getValue());
-                }
-            }*/
+        SparseArray<MediaItemBean> selectedMediaMap = null;
+        if (getIntent() != null && getIntent().getParcelableExtra(Constants.SELECTED_MEDIA_LIST_OBJ) != null) {
+            MediaItemBean obj = getIntent().getParcelableExtra(Constants.SELECTED_MEDIA_LIST_OBJ);
+            selectedMediaMap = obj.getSeelctedItemMap();
         }
         initViews();
         presenterImpl = new SelectedMediaPresenterImpl(this, this, selectedMediaMap);

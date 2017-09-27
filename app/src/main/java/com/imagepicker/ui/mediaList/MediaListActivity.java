@@ -10,10 +10,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.imagepicker.R;
 import com.imagepicker.utils.PermissionsAndroid;
+import com.imagepicker.utils.RecyclerViewFastScroller;
 
 /**
  * auther Anuj Sharma on 9/18/2017.
@@ -22,6 +24,7 @@ import com.imagepicker.utils.PermissionsAndroid;
 public class MediaListActivity extends AppCompatActivity implements MediaListView {
     private Toolbar toolbar;
     private RecyclerView recyclerView;
+    private RecyclerViewFastScroller fastScroller;
     public MenuItem save, count;
 
     private MediaListPresenterImpl presenterImpl;
@@ -63,11 +66,17 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         recyclerView = findViewById(R.id.media_recycler);
+        fastScroller = findViewById(R.id.fastscroller);
     }
 
     @Override
     public RecyclerView getRecyclerView() {
         return recyclerView;
+    }
+
+    @Override
+    public RecyclerViewFastScroller getFastScroller() {
+        return fastScroller;
     }
 
     @Override

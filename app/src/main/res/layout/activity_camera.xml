@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <SurfaceView
+            android:id="@+id/surface_camera"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ImageView
+            android:id="@+id/btn_capture"
+            android:layout_width="@dimen/def_media_icon_small"
+            android:layout_height="@dimen/def_media_icon_small"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/margin_12"
+            android:background="@drawable/shape_round_select"
+            android:src="@android:drawable/ic_menu_camera"
+            android:tint="@color/white" />
+    </RelativeLayout>
+
+</LinearLayout>

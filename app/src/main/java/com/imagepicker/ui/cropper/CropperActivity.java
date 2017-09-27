@@ -1,12 +1,9 @@
 package com.imagepicker.ui.cropper;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -20,12 +17,10 @@ import com.imagepicker.cropper.CropImage;
 import com.imagepicker.cropper.CropImageOptions;
 import com.imagepicker.cropper.CropImageView;
 import com.imagepicker.model.MediaItemBean;
-import com.imagepicker.ui.selectedMedia.SelectedMediaActivity;
 import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.PermissionsAndroid;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -78,8 +73,12 @@ public class CropperActivity extends AppCompatActivity implements CropImageView.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cropper);
         initViews();
-        if (getIntent() != null && getIntent().getSerializableExtra(Constants.SELECTED_MEDIA_LIST_OBJ) != null) {
-            MediaItemBean mediaObj = (MediaItemBean) getIntent().getSerializableExtra(Constants.SELECTED_MEDIA_LIST_OBJ);
+        if (getIntent() != null && getIntent().getParcelableExtra(Constants.SELECTED_MEDIA_LIST_OBJ) != null) {
+            MediaItemBean mediaObj = getIntent().getParcelableExtra(Constants.SELECTED_MEDIA_LIST_OBJ);
+            System.out.println("MediaSize-> " + mediaObj.getMediaSize());
+            System.out.println("MediaHeight-> " + mediaObj.getHeight());
+            System.out.println("MediaWidth-> " + mediaObj.getWidth());
+
             cropImageView.setImageUriAsync(Uri.fromFile(new File(mediaObj.getMediaPath())));
         }
     }

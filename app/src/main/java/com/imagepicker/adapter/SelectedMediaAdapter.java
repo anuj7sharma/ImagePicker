@@ -2,16 +2,15 @@ package com.imagepicker.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.imagepicker.R;
 import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.ui.selectedMedia.SelectedMediaPresenter;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
         this.mediaList = mediaList;
         this.presenter = listener;
     }
-
 
 
     public List<MediaItemBean> getList() {
@@ -57,8 +55,8 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (holder instanceof SelectedMediaHolder) {
             SelectedMediaHolder vh = (SelectedMediaHolder) holder;
             MediaItemBean obj = mediaList.get(position);
-            Picasso.with(context).load(new File(obj.getMediaPath())).placeholder(R.drawable.ic_def_image).
-                    resize(50, 50).centerCrop().into(vh.imageView);
+
+            vh.imageView.setImageURI(Uri.fromFile(new File(obj.getMediaPath())));
 
             if (selectedItem == position) {
                 vh.viewSelected.setVisibility(View.VISIBLE);
@@ -74,7 +72,7 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     private class SelectedMediaHolder extends RecyclerView.ViewHolder {
-        private ImageView imageView;
+        private SimpleDraweeView imageView;
         private View viewSelected;
 
         private SelectedMediaHolder(View itemView) {
