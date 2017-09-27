@@ -1,5 +1,6 @@
 package com.imagepicker.ui.mediaList;
 
+import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
@@ -13,4 +14,5 @@ public interface MediaListView {
     RecyclerView getRecyclerView();
     RecyclerViewFastScroller getFastScroller();
     Toolbar getToolbar();
+    AppCompatSpinner getSpinner();
 }

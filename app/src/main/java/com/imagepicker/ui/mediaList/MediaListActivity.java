@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -23,6 +24,7 @@ import com.imagepicker.utils.RecyclerViewFastScroller;
 
 public class MediaListActivity extends AppCompatActivity implements MediaListView {
     private Toolbar toolbar;
+    private AppCompatSpinner spinnerFolder;
     private RecyclerView recyclerView;
     private RecyclerViewFastScroller fastScroller;
     public MenuItem save, count;
@@ -65,6 +67,7 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
 
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
+        spinnerFolder = findViewById(R.id.spinner_folder);
         recyclerView = findViewById(R.id.media_recycler);
         fastScroller = findViewById(R.id.fastscroller);
     }
@@ -82,6 +85,11 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
     @Override
     public Toolbar getToolbar() {
         return toolbar;
+    }
+
+    @Override
+    public AppCompatSpinner getSpinner() {
+        return spinnerFolder;
     }
 
     @Override
