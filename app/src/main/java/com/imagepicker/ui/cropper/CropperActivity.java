@@ -5,11 +5,14 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.imagepicker.R;
@@ -26,16 +29,20 @@ import java.io.IOException;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * author by Anuj Sharma on 9/25/2017.
  */
 
-public class CropperActivity extends AppCompatActivity implements CropImageView.OnSetImageUriCompleteListener, CropImageView.OnCropImageCompleteListener {
+public class CropperActivity extends AppCompatActivity implements CropImageView.OnSetImageUriCompleteListener, CropImageView.OnCropImageCompleteListener, View.OnClickListener {
 
     private CropImageView cropImageView;
     private CropImageOptions cropImageOptions;
+    private TextView btnReset;
+    private ImageView btnRotation, btnLayers;
+
+    private BottomSheetBehavior mBottomSheetBehavior;
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -102,7 +109,16 @@ public class CropperActivity extends AppCompatActivity implements CropImageView.
 
         cropImageView = findViewById(R.id.cropImageView);
         cropImageOptions = new CropImageOptions();
+        btnRotation = findViewById(R.id.btn_rotation);
+        btnLayers = findViewById(R.id.btn_layer);
+        btnReset = findViewById(R.id.btn_reset);
 
+        View bottomSheet = findViewById(R.id.container_bottomsheet);
+        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        btnRotation.setOnClickListener(this);
+        btnLayers.setOnClickListener(this);
+        btnReset.setOnClickListener(this);
     }
 
     @Override
@@ -179,5 +195,25 @@ public class CropperActivity extends AppCompatActivity implements CropImageView.
         return outputUri;
     }
 
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btn_rotation:
+                rotateImage(90);
+                break;
+            case R.id.btn_layer:
+                // show dialog or bottomsheet and choose crop ratio
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                break;
+            case R.id.btn_reset:
+                //reset whole
+                break;
+        }
+    }
+
+    private void showLayerOptions() {
+
+    }
 
 }

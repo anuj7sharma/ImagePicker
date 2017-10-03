@@ -23,6 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/def_media_icon_small"
             android:layout_gravity="bottom"
+            android:background="@color/light_transpirant_black"
             android:padding="@dimen/margin_4" />
     </FrameLayout>
     <!-- <RelativeLayout
