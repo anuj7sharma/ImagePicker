@@ -11,12 +11,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.imagepicker.R;
+import com.imagepicker.model.MessageEvent;
 import com.imagepicker.utils.PermissionsAndroid;
 import com.imagepicker.utils.RecyclerViewFastScroller;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * auther Anuj Sharma on 9/18/2017.
@@ -29,7 +33,8 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
     private RecyclerViewFastScroller fastScroller;
     public MenuItem save, count;
 
-    private MediaListPresenterImpl presenterImpl;
+    //    @Inject
+    MediaListPresenterImpl presenterImpl;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -45,14 +50,31 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.action_save:
-                if(presenterImpl!=null){
+                if (presenterImpl != null) {
                     presenterImpl.saveSelectedMedia();
                 }
                 break;
         }
         return true;
+    }
+
+//    private MediaListComponent getComponent(){
+//        return
+//    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 
     @Override
@@ -64,6 +86,17 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
         presenterImpl = new MediaListPresenterImpl(this, this);
 
     }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        /* Do something */
+        if (presenterImpl != null && event!=null) {
+            presenterImpl.updateSelectedMedia(event.getMediaItemBean());
+        }
+    }
+
+    ;
+
 
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);

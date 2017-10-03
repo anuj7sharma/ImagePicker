@@ -11,6 +11,7 @@ import com.facebook.imagepipeline.core.ImagePipelineConfig;
 
 public class GlobalApplication extends Application {
 
+
     @Override
     public void onCreate() {
         super.onCreate();

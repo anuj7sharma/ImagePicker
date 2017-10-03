@@ -23,8 +23,6 @@ import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.PermissionsAndroid;
 import com.imagepicker.utils.SpacesItemDecoration;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -76,6 +74,8 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     }
 
     private void init() {
+        // observer will receive all events.
+
         mediaListActivity.setSupportActionBar(mediaListView.getToolbar());
         mediaListActivity.getSupportActionBar().setTitle("");
         mediaListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -139,17 +139,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                         }
                         adapter.getList().set(position, mediaItemBean);
                         adapter.updateList(adapter.getList());
-
-                        //update selected media count on toolbar
-                        mediaListActivity.getSupportActionBar().setTitle(R.string.app_name);
-                        mediaListActivity.count.setTitle(String.valueOf(selectedMediaMap.size()));
-                        if (selectedMediaMap.size() > 0) {
-                            mediaListActivity.count.setVisible(true);
-                            mediaListActivity.save.setVisible(true);
-                        } else {
-                            mediaListActivity.count.setVisible(false);
-                            mediaListActivity.save.setVisible(false);
-                        }
+                        manageToolbarCount();
                     }
 
                     @Override
@@ -158,6 +148,56 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                     }
                 });
         System.out.println("Select Id-> " + obj.getId());
+    }
+
+    private void manageToolbarCount() {
+        if (selectedMediaMap == null) return;
+        //update selected media count on toolbar
+        mediaListActivity.count.setTitle(String.valueOf(selectedMediaMap.size()));
+        if (selectedMediaMap.size() > 0) {
+            mediaListActivity.count.setVisible(true);
+            mediaListActivity.save.setVisible(true);
+        } else {
+            mediaListActivity.count.setVisible(false);
+            mediaListActivity.save.setVisible(false);
+        }
+    }
+
+    public void updateSelectedMedia(MediaItemBean mediaItemBean) {
+        if (selectedMediaMap != null) {
+            //Now remove selected Items from arraylist
+            Single.just(mediaItemBean).subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new SingleObserver<MediaItemBean>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onSuccess(MediaItemBean mediaItemBean) {
+                            for (MediaItemBean obj :
+                                    adapter.getList()) {
+
+                            }
+                            for (int i = 0; i < adapter.getList().size(); i++) {
+                                if (adapter.getList().get(i).getId().equals(mediaItemBean.getId())) {
+                                    adapter.getList().remove(i);
+                                }
+                            }
+                            selectedMediaMap.remove(Integer.parseInt(mediaItemBean.getId()));
+                            adapter.updateList(adapter.getList());
+                            manageToolbarCount();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+                    });
+        }
+
+
     }
 
     @Override

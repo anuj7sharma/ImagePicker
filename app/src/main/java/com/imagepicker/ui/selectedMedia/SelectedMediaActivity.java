@@ -15,11 +15,14 @@ import android.widget.Toast;
 
 import com.imagepicker.R;
 import com.imagepicker.model.MediaItemBean;
+import com.imagepicker.model.MessageEvent;
 import com.imagepicker.ui.cropper.CropperActivity;
 import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.DetailViewPagerTransformer;
 
-import java.util.LinkedHashMap;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * auther Anuj Sharma on 9/21/2017.
@@ -64,6 +67,18 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selected_media);
@@ -74,6 +89,11 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
         }
         initViews();
         presenterImpl = new SelectedMediaPresenterImpl(this, this, selectedMediaMap);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        /* Do something */
     }
 
     private void initViews() {

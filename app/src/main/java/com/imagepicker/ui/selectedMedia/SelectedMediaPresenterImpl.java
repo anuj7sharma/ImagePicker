@@ -17,7 +17,10 @@ import com.imagepicker.R;
 import com.imagepicker.adapter.MediaPagerAdapter;
 import com.imagepicker.adapter.SelectedMediaAdapter;
 import com.imagepicker.model.MediaItemBean;
+import com.imagepicker.model.MessageEvent;
 import com.imagepicker.utils.SpacesItemDecoration;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,8 +53,8 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
     SelectedMediaPresenterImpl(SelectedMediaActivity selectedMediaActivity, SelectedMediaView selectedMediaView, SparseArray<MediaItemBean> selectedMediaMap) {
         this.selectedMediaActivity = selectedMediaActivity;
         this.selectedMediaView = selectedMediaView;
-        if(this.selectedMediaList==null)this.selectedMediaList = new ArrayList<>();
-        for (int i=0;i<selectedMediaMap.size();i++){
+        if (this.selectedMediaList == null) this.selectedMediaList = new ArrayList<>();
+        for (int i = 0; i < selectedMediaMap.size(); i++) {
             int key = selectedMediaMap.keyAt(i);
             this.selectedMediaList.add(selectedMediaMap.get(key));
         }
@@ -121,10 +124,11 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
         if (adapter != null && selectedMediaView.getSelectedViewPager() != null && pagerAdapter != null) {
             //get current position
             int position = selectedMediaView.getSelectedViewPager().getCurrentItem();
+            MessageEvent obj = new MessageEvent();
+            obj.setMediaItemBean(adapter.getList().get(position));
             selectedMediaList.remove(position);
             adapter.updateList(selectedMediaList);
             ((MediaPagerAdapter) pagerAdapter).updateList(selectedMediaList);
-            //set broadcast so that mediaList items can also be removed
 
             if (adapter.getList().size() == 0) {
                 //reset all view
@@ -140,6 +144,8 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
                 }
 
             }
+            //set broadcast so that mediaList items can also be removed
+            EventBus.getDefault().postSticky(obj);
         }
     }
 
