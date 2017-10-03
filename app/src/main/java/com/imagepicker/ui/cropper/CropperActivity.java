@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
@@ -42,6 +43,7 @@ public class CropperActivity extends AppCompatActivity implements CropImageView.
     private ImageView btnRotation, btnLayers;
 
     private BottomSheetBehavior mBottomSheetBehavior;
+    private View transparentView;
 
 
     @Override
@@ -109,13 +111,29 @@ public class CropperActivity extends AppCompatActivity implements CropImageView.
 
         cropImageView = findViewById(R.id.cropImageView);
         cropImageOptions = new CropImageOptions();
+        transparentView = findViewById(R.id.bg);
         btnRotation = findViewById(R.id.btn_rotation);
         btnLayers = findViewById(R.id.btn_layer);
         btnReset = findViewById(R.id.btn_reset);
 
         View bottomSheet = findViewById(R.id.container_bottomsheet);
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        mBottomSheetBehavior.setPeekHeight(0);
+        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if (newState == BottomSheetBehavior.STATE_COLLAPSED || newState == BottomSheetBehavior.STATE_HIDDEN)
+                    transparentView.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                transparentView.setVisibility(View.VISIBLE);
+                transparentView.setAlpha(slideOffset);
+            }
+        });
+        transparentView.setOnClickListener(this);
         btnRotation.setOnClickListener(this);
         btnLayers.setOnClickListener(this);
         btnReset.setOnClickListener(this);
@@ -199,6 +217,10 @@ public class CropperActivity extends AppCompatActivity implements CropImageView.
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.bg:
+                //Hide bottom sheet
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                break;
             case R.id.btn_rotation:
                 rotateImage(90);
                 break;
