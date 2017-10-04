@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +64,12 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
             MediaItemBean obj = mediaList.get(position);
 
 //            vh.imageView.setImageURI(Uri.fromFile(new File(obj.getMediaPath())));
-            Uri uri = Uri.fromFile(new File(obj.getMediaPath()));
+            Uri uri;
+            if (!TextUtils.isEmpty(obj.getCroppedPath())) {
+                uri = Uri.fromFile(new File(obj.getCroppedPath()));
+            } else {
+                uri = Uri.fromFile(new File(obj.getMediaPath()));
+            }
             ImageRequest imageRequest = ImageRequestBuilder
                     .newBuilderWithSource(uri)
                     .setResizeOptions(new ResizeOptions(150, 150))

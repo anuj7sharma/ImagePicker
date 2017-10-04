@@ -18,6 +18,7 @@ public class MediaItemBean implements Parcelable {
     private String mediaExtenstion;
     private long mediaSize;
     private String mediaPath;
+    private String croppedPath;
     private String mimeType;
     private String dateAdded;
     private String mediaType;
@@ -71,6 +72,14 @@ public class MediaItemBean implements Parcelable {
 
     public void setMediaPath(String mediaPath) {
         this.mediaPath = mediaPath;
+    }
+
+    public String getCroppedPath() {
+        return croppedPath;
+    }
+
+    public void setCroppedPath(String croppedPath) {
+        this.croppedPath = croppedPath;
     }
 
     public String getId() {
@@ -146,6 +155,7 @@ public class MediaItemBean implements Parcelable {
         dest.writeString(this.mediaExtenstion);
         dest.writeLong(this.mediaSize);
         dest.writeString(this.mediaPath);
+        dest.writeString(this.croppedPath);
         dest.writeString(this.mimeType);
         dest.writeString(this.dateAdded);
         dest.writeString(this.mediaType);
@@ -162,6 +172,7 @@ public class MediaItemBean implements Parcelable {
         this.mediaExtenstion = in.readString();
         this.mediaSize = in.readLong();
         this.mediaPath = in.readString();
+        this.croppedPath = in.readString();
         this.mimeType = in.readString();
         this.dateAdded = in.readString();
         this.mediaType = in.readString();

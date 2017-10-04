@@ -1,18 +1,23 @@
 package com.imagepicker.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import com.facebook.cache.common.CacheKey;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.facebook.imagepipeline.common.ResizeOptions;
+import com.facebook.imagepipeline.common.ImageDecodeOptions;
+import com.facebook.imagepipeline.core.ImagePipeline;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.imagepicker.R;
@@ -72,17 +77,24 @@ public class MediaPagerAdapter extends PagerAdapter {
         View itemView = LayoutInflater.from(container.getContext()).inflate(R.layout.view_selected_image, container, false);
         final ProgressBar progressBar = itemView.findViewById(R.id.progress_bar);
         final SimpleDraweeView selectedImage = itemView.findViewById(R.id.selected_image);
-
+        final ImageView videoIcon = itemView.findViewById(R.id.img_video);
         progressBar.setVisibility(View.GONE);
 
-        Uri uri = Uri.fromFile(new File(mediaItemBeanList.get(position).getMediaPath()));
+        Uri uri;
+        if (!TextUtils.isEmpty(mediaItemBeanList.get(position).getCroppedPath())) {
+            uri = Uri.fromFile(new File(mediaItemBeanList.get(position).getCroppedPath()));
+        } else {
+            uri = Uri.fromFile(new File(mediaItemBeanList.get(position).getMediaPath()));
+        }
 
-
+        Fresco.getImagePipeline().clearCaches();
         ImageRequest imageRequest = ImageRequestBuilder
                 .newBuilderWithSource(uri)
+                .setProgressiveRenderingEnabled(false)
+                .setCacheChoice(ImageRequest.CacheChoice.DEFAULT)
+                .setLocalThumbnailPreviewsEnabled(true)
                 .setProgressiveRenderingEnabled(true)
                 .build();
-
 
         DraweeController controller = Fresco.newDraweeControllerBuilder()
                 .setImageRequest(imageRequest)
@@ -91,6 +103,16 @@ public class MediaPagerAdapter extends PagerAdapter {
                 .build();
 
         selectedImage.setController(controller);
+
+        //show video icon if mimetype is video
+        if (!TextUtils.isEmpty(mediaItemBeanList.get(position).getMimeType())) {
+            if (mediaItemBeanList.get(position).getMimeType().equalsIgnoreCase("video/mp4")) {
+                videoIcon.setVisibility(View.VISIBLE);
+            } else {
+                videoIcon.setVisibility(View.GONE);
+            }
+        }
+
 
         // Add view_selected_image.xml to ViewPager
         container.addView(itemView);

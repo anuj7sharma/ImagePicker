@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,9 +40,9 @@ public class CropperActivity extends AppCompatActivity implements CropImageView.
 
     private CropImageView cropImageView;
     private CropImageOptions cropImageOptions;
-    private TextView btnReset;
-    private ImageView btnRotation, btnLayers;
-
+    //    private TextView btnReset;
+//    private ImageView btnRotation, btnLayers;
+    private MediaItemBean mediaObj;
     private BottomSheetBehavior mBottomSheetBehavior;
     private View transparentView;
 
@@ -88,12 +89,15 @@ public class CropperActivity extends AppCompatActivity implements CropImageView.
         setContentView(R.layout.activity_cropper);
         initViews();
         if (getIntent() != null && getIntent().getParcelableExtra(Constants.SELECTED_MEDIA_LIST_OBJ) != null) {
-            MediaItemBean mediaObj = getIntent().getParcelableExtra(Constants.SELECTED_MEDIA_LIST_OBJ);
+            mediaObj = getIntent().getParcelableExtra(Constants.SELECTED_MEDIA_LIST_OBJ);
             System.out.println("MediaSize-> " + mediaObj.getMediaSize());
             System.out.println("MediaHeight-> " + mediaObj.getHeight());
             System.out.println("MediaWidth-> " + mediaObj.getWidth());
-
-            cropImageView.setImageUriAsync(Uri.fromFile(new File(mediaObj.getMediaPath())));
+            if (!TextUtils.isEmpty(mediaObj.getCroppedPath())) {
+                cropImageView.setImageUriAsync(Uri.fromFile(new File(mediaObj.getCroppedPath())));
+            } else {
+                cropImageView.setImageUriAsync(Uri.fromFile(new File(mediaObj.getMediaPath())));
+            }
         }
     }
 
@@ -112,9 +116,21 @@ public class CropperActivity extends AppCompatActivity implements CropImageView.
         cropImageView = findViewById(R.id.cropImageView);
         cropImageOptions = new CropImageOptions();
         transparentView = findViewById(R.id.bg);
-        btnRotation = findViewById(R.id.btn_rotation);
-        btnLayers = findViewById(R.id.btn_layer);
-        btnReset = findViewById(R.id.btn_reset);
+        ImageView btnRotation = findViewById(R.id.btn_rotation);
+        ImageView btnLayers = findViewById(R.id.btn_layer);
+        TextView btnReset = findViewById(R.id.btn_reset);
+
+        TextView btnOriginal = findViewById(R.id.btn_original);
+        TextView btnSquare = findViewById(R.id.btn_square);
+        TextView btn2_3 = findViewById(R.id.btn_2_3);
+        TextView btn3_5 = findViewById(R.id.btn_3_5);
+        TextView btnCancel = findViewById(R.id.btn_cancel);
+
+        btnOriginal.setOnClickListener(this);
+        btnSquare.setOnClickListener(this);
+        btn2_3.setOnClickListener(this);
+        btn3_5.setOnClickListener(this);
+        btnCancel.setOnClickListener(this);
 
         View bottomSheet = findViewById(R.id.container_bottomsheet);
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
@@ -213,13 +229,32 @@ public class CropperActivity extends AppCompatActivity implements CropImageView.
         return outputUri;
     }
 
-
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.bg:
                 //Hide bottom sheet
-                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                hideBottomSheet();
+                break;
+            case R.id.btn_cancel:
+                //Hide bottom sheet
+                hideBottomSheet();
+                break;
+            case R.id.btn_original:
+                cropImageView.clearAspectRatio();
+                hideBottomSheet();
+                break;
+            case R.id.btn_square:
+                cropImageView.setAspectRatio(1, 1);
+                hideBottomSheet();
+                break;
+            case R.id.btn_2_3:
+                cropImageView.setAspectRatio(2, 3);
+                hideBottomSheet();
+                break;
+            case R.id.btn_3_5:
+                cropImageView.setAspectRatio(3, 5);
+                hideBottomSheet();
                 break;
             case R.id.btn_rotation:
                 rotateImage(90);
@@ -230,12 +265,18 @@ public class CropperActivity extends AppCompatActivity implements CropImageView.
                 break;
             case R.id.btn_reset:
                 //reset whole
+                if (mediaObj != null && cropImageView != null) {
+                    if (!TextUtils.isEmpty(mediaObj.getCroppedPath()))
+                        cropImageView.setImageUriAsync(Uri.fromFile(new File(mediaObj.getMediaPath())));
+                }
                 break;
         }
     }
 
-    private void showLayerOptions() {
-
+    private void hideBottomSheet() {
+        if (mBottomSheetBehavior != null) {
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
     }
 
 }

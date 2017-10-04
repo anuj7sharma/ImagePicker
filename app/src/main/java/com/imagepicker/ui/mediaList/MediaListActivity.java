@@ -65,7 +65,7 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
 //    }
 
 
-    @Override
+    /*@Override
     protected void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
@@ -76,27 +76,30 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
         EventBus.getDefault().unregister(this);
         super.onStop();
     }
-
+*/
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        EventBus.getDefault().register(this);
         setContentView(R.layout.activity_media_list);
         initViews();
         presenterImpl = new MediaListPresenterImpl(this, this);
 
     }
 
+    @Override
+    protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
+    }
+
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
         /* Do something */
-        if (presenterImpl != null && event!=null) {
+        if (presenterImpl != null && event != null) {
             presenterImpl.updateSelectedMedia(event.getMediaItemBean());
         }
     }
-
-    ;
-
 
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);

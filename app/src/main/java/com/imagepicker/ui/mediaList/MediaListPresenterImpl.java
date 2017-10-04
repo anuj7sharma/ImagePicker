@@ -50,6 +50,19 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     private MediaListAdapter adapter;
 
     //Variables related to Media Projections
+
+    String allMediaSelection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+            + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
+            + " OR "
+            + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+            + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+
+    String imageSelection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+            + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
+
+    String videoSelection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+            + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+
     // Get relevant columns for use later.
     private String[] projection = {
             MediaStore.Files.FileColumns._ID,
@@ -203,16 +216,12 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         //        Cursor cursor = cursorLoader.loadInBackground();
-        String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
-                + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
-                + " OR "
-                + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
-                + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+
         return new CursorLoader(
                 mediaListActivity,
                 queryUri,
                 projection,
-                selection,
+                imageSelection,
                 null, // Selection args (none).
                 MediaStore.Files.FileColumns.DATE_ADDED + " DESC" // Sort order.
         );

@@ -34,12 +34,13 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
     private ViewPager selectedViewPager;
     private RecyclerView selectedMediaRecycler;
     public static final int CROP_IMAGE_REQUEST_CODE = 501;
-
+    public MenuItem cropMenu;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_selected_image, menu);
+        cropMenu = menu.findItem(R.id.action_crop);
         return true;
     }
 

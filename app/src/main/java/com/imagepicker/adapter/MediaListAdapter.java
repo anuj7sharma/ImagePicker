@@ -1,9 +1,9 @@
 package com.imagepicker.adapter;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,6 +80,15 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             } else {
                 vh.selectedIcon.setVisibility(View.GONE);
             }
+
+            if (!TextUtils.isEmpty(obj.getMimeType())) {
+                //show video icon if mimeType is video/mp4
+                if (obj.getMimeType().equalsIgnoreCase("video/mp4")) {
+                    vh.videoIcon.setVisibility(View.VISIBLE);
+                } else {
+                    vh.videoIcon.setVisibility(View.GONE);
+                }
+            }
         }
     }
 
@@ -95,12 +104,13 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     private class MediaHolder extends RecyclerView.ViewHolder {
-        private ImageView selectedIcon;
+        private ImageView selectedIcon, videoIcon;
         private SimpleDraweeView imageView;
 
         MediaHolder(View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.media_image);
+            videoIcon = itemView.findViewById(R.id.img_video);
             selectedIcon = itemView.findViewById(R.id.img_selected);
 
 //            RxView.clicks(imageView).throttleFirst(200, TimeUnit.MICROSECONDS).

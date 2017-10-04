@@ -96,6 +96,12 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
                     //change adapter current position
                     adapter.selectedItem = position;
                     adapter.notifyDataSetChanged();
+                    if (selectedMediaList.get(position).getMimeType().equalsIgnoreCase("video/mp4")) {
+                        //hide crop option
+                        selectedMediaActivity.cropMenu.setVisible(false);
+                    } else {
+                        selectedMediaActivity.cropMenu.setVisible(true);
+                    }
                 }
             }
 
@@ -185,7 +191,8 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
                                 // PNG is a lossless format, the compression factor (100) is ignored
 
                                 //update adapter
-                                selectedMediaList.get(position).setMediaPath(file.getAbsolutePath());
+                                selectedMediaList.get(position).setCroppedPath(file.getAbsolutePath());
+//                                selectedMediaList.get(position).setMediaPath(file.getAbsolutePath());
                                 adapter.updateList(selectedMediaList);
                                 ((MediaPagerAdapter) pagerAdapter).updateList(selectedMediaList);
 
