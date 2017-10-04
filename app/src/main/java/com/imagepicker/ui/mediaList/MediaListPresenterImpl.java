@@ -90,7 +90,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
         // observer will receive all events.
 
         mediaListActivity.setSupportActionBar(mediaListView.getToolbar());
-        mediaListActivity.getSupportActionBar().setTitle("");
+        mediaListActivity.getSupportActionBar().setTitle(mediaListActivity.getString(R.string.app_name));
         mediaListActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mediaListView.getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,6 +101,11 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
 
         StaggeredGridLayoutManager sm = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
         mediaListView.getRecyclerView().setLayoutManager(sm);
+        mediaListView.getRecyclerView().setHasFixedSize(true);
+        mediaListView.getRecyclerView().setItemViewCacheSize(20);
+        mediaListView.getRecyclerView().setDrawingCacheEnabled(true);
+        mediaListView.getRecyclerView().setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
         int spacingInPixels = mediaListActivity.getResources().getDimensionPixelSize(R.dimen.margin_4);
         mediaListView.getRecyclerView().addItemDecoration(new SpacesItemDecoration(spacingInPixels));
         adapter = new MediaListAdapter(null, this);
@@ -151,7 +156,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                             selectedMediaMap.put(Integer.parseInt(mediaItemBean.getId()), mediaItemBean);
                         }
                         adapter.getList().set(position, mediaItemBean);
-                        adapter.updateList(adapter.getList());
+                        adapter.notifyItemChanged(position);
                         manageToolbarCount();
                     }
 
@@ -196,10 +201,11 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                             for (int i = 0; i < adapter.getList().size(); i++) {
                                 if (adapter.getList().get(i).getId().equals(mediaItemBean.getId())) {
                                     adapter.getList().remove(i);
+                                    adapter.notifyItemRemoved(i);
                                 }
                             }
                             selectedMediaMap.remove(Integer.parseInt(mediaItemBean.getId()));
-                            adapter.updateList(adapter.getList());
+
                             manageToolbarCount();
                         }
 
@@ -268,7 +274,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                                 }
                             }).subscribeOn(Schedulers.computation());
                         }
-                    })
+                    }).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .toList()
                     .subscribe(new DisposableSingleObserver<List<MediaItemBean>>() {

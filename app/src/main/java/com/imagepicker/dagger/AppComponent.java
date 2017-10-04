@@ -3,6 +3,7 @@ package com.imagepicker.dagger;
 import com.imagepicker.ui.GlobalApplication;
 import com.imagepicker.ui.cropper.CropperActivity;
 import com.imagepicker.ui.mediaList.MediaListActivity;
+import com.imagepicker.ui.mediaList.MediaListComponent;
 import com.imagepicker.ui.selectedMedia.SelectedMediaActivity;
 
 import javax.inject.Singleton;
@@ -14,7 +15,7 @@ import dagger.Component;
  */
 
 //@Singleton
-//@Component(modules = {MediaListActivity.class, SelectedMediaActivity.class, CropperActivity.class})
+//@Component(modules = {MediaListComponent.class})
 public interface AppComponent {
 //    void inject(GlobalApplication globalApplication);
 //

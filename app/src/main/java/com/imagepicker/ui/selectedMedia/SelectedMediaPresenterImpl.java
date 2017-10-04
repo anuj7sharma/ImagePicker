@@ -133,7 +133,7 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
             MessageEvent obj = new MessageEvent();
             obj.setMediaItemBean(adapter.getList().get(position));
             selectedMediaList.remove(position);
-            adapter.updateList(selectedMediaList);
+            adapter.notifyItemRemoved(position);
             ((MediaPagerAdapter) pagerAdapter).updateList(selectedMediaList);
 
             if (adapter.getList().size() == 0) {
@@ -193,7 +193,7 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
                                 //update adapter
                                 selectedMediaList.get(position).setCroppedPath(file.getAbsolutePath());
 //                                selectedMediaList.get(position).setMediaPath(file.getAbsolutePath());
-                                adapter.updateList(selectedMediaList);
+                                adapter.notifyItemChanged(position);
                                 ((MediaPagerAdapter) pagerAdapter).updateList(selectedMediaList);
 
                             } catch (Exception e) {
