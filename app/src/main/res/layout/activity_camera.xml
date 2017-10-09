@@ -8,8 +8,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <SurfaceView
-            android:id="@+id/surface_camera"
+        <FrameLayout
+            android:id="@+id/frame_camera"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

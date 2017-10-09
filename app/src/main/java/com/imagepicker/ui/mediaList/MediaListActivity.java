@@ -1,9 +1,12 @@
 package com.imagepicker.ui.mediaList;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.RecyclerView;
@@ -14,13 +17,18 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.imagepicker.R;
+import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.model.MessageEvent;
+import com.imagepicker.ui.PickerActivity;
+import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.PermissionsAndroid;
 import com.imagepicker.utils.RecyclerViewFastScroller;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.ArrayList;
 
 /**
  * auther Anuj Sharma on 9/18/2017.
@@ -30,6 +38,7 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
     private Toolbar toolbar;
     private AppCompatSpinner spinnerFolder;
     private RecyclerView recyclerView;
+    private FloatingActionButton fabCamera;
     private RecyclerViewFastScroller fastScroller;
     public MenuItem save, count;
 
@@ -60,23 +69,7 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
         return true;
     }
 
-//    private MediaListComponent getComponent(){
-//        return
-//    }
 
-
-    /*@Override
-    protected void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    protected void onStop() {
-        EventBus.getDefault().unregister(this);
-        super.onStop();
-    }
-*/
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,12 +98,18 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
         toolbar = findViewById(R.id.toolbar);
         spinnerFolder = findViewById(R.id.spinner_folder);
         recyclerView = findViewById(R.id.media_recycler);
+        fabCamera = findViewById(R.id.fab_camera);
         fastScroller = findViewById(R.id.fastscroller);
     }
 
     @Override
     public RecyclerView getRecyclerView() {
         return recyclerView;
+    }
+
+    @Override
+    public FloatingActionButton getCameraBtn() {
+        return fabCamera;
     }
 
     @Override
@@ -149,6 +148,22 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
                 }
             }
 
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == PickerActivity.PICKER_REQUEST_CODE) {
+                ArrayList<MediaItemBean> selectedMediaList = data.getParcelableArrayListExtra(Constants.SelectedMediaObj);
+                if (selectedMediaList != null) {
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra(Constants.SelectedMediaObj, selectedMediaList);
+                    setResult(Activity.RESULT_OK, returnIntent);
+                    finish();
+                }
+            }
         }
     }
 }

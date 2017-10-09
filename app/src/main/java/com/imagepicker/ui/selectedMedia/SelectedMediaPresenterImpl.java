@@ -1,5 +1,6 @@
 package com.imagepicker.ui.selectedMedia;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -18,6 +19,7 @@ import com.imagepicker.adapter.MediaPagerAdapter;
 import com.imagepicker.adapter.SelectedMediaAdapter;
 import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.model.MessageEvent;
+import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.SpacesItemDecoration;
 
 import org.greenrobot.eventbus.EventBus;
@@ -26,7 +28,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
@@ -44,7 +45,7 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
 
     private SelectedMediaActivity selectedMediaActivity;
     private SelectedMediaView selectedMediaView;
-    private List<MediaItemBean> selectedMediaList;
+    private ArrayList<MediaItemBean> selectedMediaList;
 
     private SelectedMediaAdapter adapter;
 
@@ -232,6 +233,17 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void onSaveClick() {
+        Intent returnIntent = new Intent();
+        returnIntent.putParcelableArrayListExtra(Constants.SelectedMediaObj, selectedMediaList);
+        selectedMediaActivity.setResult(Activity.RESULT_OK, returnIntent);
+        selectedMediaActivity.finish();
+//        Intent saveIntent = new Intent(selectedMediaActivity, PickerActivity.class);
+//        saveIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        selectedMediaActivity.startActivity(saveIntent);
+
     }
 
     @Override

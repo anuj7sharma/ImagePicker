@@ -1,6 +1,7 @@
 package com.imagepicker.ui.camera;
 
 import android.view.SurfaceView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 /**
@@ -13,7 +14,7 @@ public interface CameraPresenterView {
     }
 
     interface CameraView {
-        SurfaceView getSurfaceView();
+        FrameLayout getFrame();
         ImageView getCaptureBtn();
     }
 }

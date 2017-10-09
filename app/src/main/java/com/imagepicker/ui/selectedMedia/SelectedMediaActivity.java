@@ -61,7 +61,9 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
                 }
                 break;
             case R.id.action_save:
-                Toast.makeText(this, "Save", Toast.LENGTH_SHORT).show();
+                if (SelectedMediaActivity.this.presenterImpl!=null){
+                    SelectedMediaActivity.this.presenterImpl.onSaveClick();
+                }
                 break;
         }
         return false;

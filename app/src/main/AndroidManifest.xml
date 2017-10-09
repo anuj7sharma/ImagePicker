@@ -4,8 +4,10 @@
     package="com.imagepicker">
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.camera"
-        android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
@@ -15,22 +17,24 @@
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:largeHeap="true"
         tools:ignore="UnusedAttribute,GoogleAppIndexingWarning">
 
-        <activity android:name=".ui.PickerActivity" />
-
-        <activity
-            android:name=".ui.mediaList.MediaListActivity"
-            android:launchMode="singleTask">
+        <activity android:name=".ui.PickerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.mediaList.MediaListActivity"
+            android:launchMode="singleTask">
+
         </activity>
         <activity
             android:name=".ui.selectedMedia.SelectedMediaActivity"
@@ -40,6 +44,7 @@
         <activity
             android:name=".ui.cropper.CropperActivity"
             android:launchMode="singleTask" />
+        <activity android:name=".ui.camera.CameraActivity" />
     </application>
 
 </manifest>

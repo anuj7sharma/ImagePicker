@@ -37,6 +37,9 @@ public class MediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         this.presenter = listener;
     }
 
+    public void setList(List<MediaItemBean> mediaList){
+        this.mediaList = mediaList;
+    }
     public void updateList(List<MediaItemBean> mediaList) {
         this.mediaList = mediaList;
         notifyDataSetChanged();

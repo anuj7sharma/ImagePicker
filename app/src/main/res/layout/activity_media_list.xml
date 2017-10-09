@@ -23,12 +23,12 @@
 
             <android.support.v7.widget.AppCompatSpinner
                 android:id="@+id/spinner_folder"
-                android:layout_width="wrap_content"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:gravity="left"
                 android:minWidth="150dp"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                app:theme="@style/ThemeOverlay.AppCompat.Dark" />
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
+                app:theme="@style/ThemeOverlay.AppCompat.Light" />
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
@@ -55,5 +55,13 @@
             android:visibility="visible" />
     </RelativeLayout>
 
-
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_margin="@dimen/margin_16"
+        android:backgroundTint="@color/green"
+        android:src="@drawable/ic_camera"
+        app:tint="@color/white" />
 </android.support.design.widget.CoordinatorLayout>
