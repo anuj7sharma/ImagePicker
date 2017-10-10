@@ -15,12 +15,11 @@ import com.imagepicker.ui.mediaList.MediaListActivity;
 import com.imagepicker.utils.Constants;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import io.fabric.sdk.android.Fabric;
 
 public class PickerActivity extends AppCompatActivity {
-    public static int PICKER_REQUEST_CODE = 1000;
+    public static final int PICKER_REQUEST_CODE = 1000;
     private TextView txtView;
 
     @Override
@@ -30,7 +29,7 @@ public class PickerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_picker);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(getString(R.string.app_name));
+//        getSupportActionBar().setTitle(getString(R.string.app_name));
         AppCompatButton btnGallery = findViewById(R.id.btn_gallery);
         txtView = findViewById(R.id.textView);
 

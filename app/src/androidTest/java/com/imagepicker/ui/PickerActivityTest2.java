@@ -22,6 +22,7 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
+import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
@@ -29,13 +30,13 @@ import static org.hamcrest.Matchers.is;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class PickerActivityTest {
+public class PickerActivityTest2 {
 
     @Rule
     public ActivityTestRule<PickerActivity> mActivityTestRule = new ActivityTestRule<>(PickerActivity.class);
 
     @Test
-    public void pickerActivityTest() {
+    public void pickerActivityTest2() {
         // Added a sleep statement to match the app's execution delay.
         // The recommended way to handle such scenarios is to use Espresso idling resources:
         // https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
@@ -54,6 +55,56 @@ public class PickerActivityTest {
                                 0),
                         isDisplayed()));
         appCompatButton.perform(click());
+
+        // Added a sleep statement to match the app's execution delay.
+        // The recommended way to handle such scenarios is to use Espresso idling resources:
+        // https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
+        try {
+            Thread.sleep(60000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        ViewInteraction simpleDraweeView = onView(
+                allOf(withId(R.id.media_image), withContentDescription("Media Item"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withClassName(is("android.support.v7.widget.CardView")),
+                                        0),
+                                0),
+                        isDisplayed()));
+        simpleDraweeView.perform(click());
+
+        ViewInteraction simpleDraweeView2 = onView(
+                allOf(withId(R.id.media_image), withContentDescription("Media Item"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withClassName(is("android.support.v7.widget.CardView")),
+                                        0),
+                                0),
+                        isDisplayed()));
+        simpleDraweeView2.perform(click());
+
+        ViewInteraction appCompatSpinner = onView(
+                allOf(withId(R.id.spinner_folder),
+                        childAtPosition(
+                                allOf(withId(R.id.toolbar),
+                                        childAtPosition(
+                                                withId(R.id.appbar),
+                                                0)),
+                                0),
+                        isDisplayed()));
+        appCompatSpinner.perform(click());
+
+        ViewInteraction actionMenuItemView = onView(
+                allOf(withId(R.id.action_save), withText("Save"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.toolbar),
+                                        2),
+                                1),
+                        isDisplayed()));
+        actionMenuItemView.perform(click());
 
     }
 

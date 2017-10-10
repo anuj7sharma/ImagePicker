@@ -61,7 +61,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="right|bottom"
         android:layout_margin="@dimen/margin_16"
-        android:backgroundTint="@color/green"
-        android:src="@drawable/ic_camera"
-        app:tint="@color/white" />
+        android:src="@drawable/ic_camera" />
 </android.support.design.widget.CoordinatorLayout>
