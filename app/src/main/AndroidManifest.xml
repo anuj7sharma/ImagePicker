@@ -22,7 +22,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="UnusedAttribute,GoogleAppIndexingWarning">
-
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="d89b6aa2cb3d098ebd08e96bf4dc4847612b92fb"
+            />
         <activity android:name=".ui.PickerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

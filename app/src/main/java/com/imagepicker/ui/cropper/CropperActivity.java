@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.imagepicker.R;
 import com.imagepicker.cropper.CropImage;
 import com.imagepicker.cropper.CropImageOptions;
@@ -28,6 +29,7 @@ import com.imagepicker.utils.PermissionsAndroid;
 import java.io.File;
 import java.io.IOException;
 
+import io.fabric.sdk.android.Fabric;
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
@@ -86,6 +88,7 @@ public class CropperActivity extends AppCompatActivity implements CropImageView.
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_cropper);
         initViews();
         if (getIntent() != null && getIntent().getParcelableExtra(Constants.SELECTED_MEDIA_LIST_OBJ) != null) {

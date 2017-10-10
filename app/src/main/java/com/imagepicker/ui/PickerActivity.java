@@ -8,12 +8,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.imagepicker.R;
 import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.ui.mediaList.MediaListActivity;
 import com.imagepicker.utils.Constants;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+
+import io.fabric.sdk.android.Fabric;
 
 public class PickerActivity extends AppCompatActivity {
     public static int PICKER_REQUEST_CODE = 1000;
@@ -22,6 +26,7 @@ public class PickerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_picker);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -35,8 +40,6 @@ public class PickerActivity extends AppCompatActivity {
                 startActivityForResult(new Intent(PickerActivity.this, MediaListActivity.class), PICKER_REQUEST_CODE);
             }
         });
-
-
     }
 
     @Override
