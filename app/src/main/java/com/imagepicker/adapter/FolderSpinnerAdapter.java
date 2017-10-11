@@ -2,6 +2,7 @@ package com.imagepicker.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,7 +52,17 @@ public class FolderSpinnerAdapter extends ArrayAdapter<String> {
             holder = (Holder) convertView.getTag();
         }
 
-        holder.tableNumber.setText(mList.get(position).toString());
+        System.out.println("Path->" + Environment.getExternalStorageDirectory().getPath());
+        String filePath = mList.get(position).toString();
+        System.out.println("Actual Path-> " + filePath);
+        if (filePath.contains(Environment.getExternalStorageDirectory().getPath())) {
+            String[] arrayStr = filePath.split(Environment.getExternalStorageDirectory().getPath());
+
+//            filePath = filePath.substring(filePath.indexOf(Environment.getExternalStorageDirectory().getPath())+1);
+            filePath = arrayStr[1];
+            System.out.println("SubString path->" + filePath);
+        }
+        holder.tableNumber.setText(filePath);
         holder.tableNumber.setTextColor(color);
         holder.tableNumber.setPadding(padding, padding, padding, padding);
 

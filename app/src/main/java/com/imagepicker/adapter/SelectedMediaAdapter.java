@@ -1,11 +1,13 @@
 package com.imagepicker.adapter;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -27,16 +29,22 @@ import java.util.List;
  * auther Anuj Sharma on 9/21/2017.
  */
 
-public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnTouchListener {
     private Context context;
     private List<MediaItemBean> mediaList;
     private SelectedMediaPresenter presenter;
     public int selectedItem = -1;
 
-    public SelectedMediaAdapter(Context context, List<MediaItemBean> mediaList, SelectedMediaPresenter listener) {
+    int windowwidth;
+    int windowheight;
+
+
+    public SelectedMediaAdapter(Activity activity, List<MediaItemBean> mediaList, SelectedMediaPresenter listener) {
         this.context = context;
         this.mediaList = mediaList;
         this.presenter = listener;
+        windowwidth = activity.getWindowManager().getDefaultDisplay().getWidth();
+        windowheight = activity.getWindowManager().getDefaultDisplay().getHeight();
     }
 
 
@@ -97,6 +105,7 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
         return (mediaList == null) ? 0 : mediaList.size();
     }
 
+
     private class SelectedMediaHolder extends RecyclerView.ViewHolder {
         private SimpleDraweeView imageView;
         private View viewSelected;
@@ -119,11 +128,40 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<RecyclerView.View
             imageView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
+//                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
                     if (presenter != null)
                         presenter.onMediaLongClick(mediaList.get(getLayoutPosition()), getLayoutPosition(), imageView);
                     return false;
                 }
             });
+            imageView.setOnTouchListener(SelectedMediaAdapter.this);
         }
     }
+
+    private float initialX = 0, initialY = 0;
+
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
+        float xCoOrdinate = 0, yCoOrdinate = 0;
+
+        switch (event.getAction()) {
+//            case MotionEvent.ACTION_DOWN:
+//                initialX = view.getX();
+//                initialY = view.getY();
+//                xCoOrdinate = view.getX() - event.getRawX();
+//                yCoOrdinate = view.getY() - event.getRawY();
+//                break;
+//            case MotionEvent.ACTION_UP:
+//                view.animate().x(event.getRawX() + initialX).y(event.getRawY() + initialY).setDuration(200).start();
+//                break;
+//            case MotionEvent.ACTION_MOVE:
+//                System.out.println("dragging");
+//                view.animate().x(xCoOrdinate).y(yCoOrdinate).setDuration(200).start();
+//                break;
+            default:
+                return false;
+
+        }
+    }
+
 }

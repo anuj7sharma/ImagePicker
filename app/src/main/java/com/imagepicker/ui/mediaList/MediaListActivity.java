@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -40,6 +41,7 @@ import io.fabric.sdk.android.Fabric;
 public class MediaListActivity extends AppCompatActivity implements MediaListView {
     private Toolbar toolbar;
     private AppCompatSpinner spinnerFolder;
+    private ImageView emptyView;
     private RecyclerView recyclerView;
     private FloatingActionButton fabCamera;
     private RecyclerViewFastScroller fastScroller;
@@ -101,9 +103,15 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         spinnerFolder = findViewById(R.id.spinner_folder);
+        emptyView = findViewById(R.id.empty_view);
         recyclerView = findViewById(R.id.media_recycler);
         fabCamera = findViewById(R.id.fab_camera);
         fastScroller = findViewById(R.id.fastscroller);
+    }
+
+    @Override
+    public ImageView getEmptyView() {
+        return emptyView;
     }
 
     @Override

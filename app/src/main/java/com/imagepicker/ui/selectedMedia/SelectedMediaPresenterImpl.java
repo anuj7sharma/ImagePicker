@@ -151,6 +151,7 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
                 }
 
             }
+            adapter.notifyItemChanged(position);
             //set broadcast so that mediaList items can also be removed
             EventBus.getDefault().postSticky(obj);
         }
@@ -240,17 +241,13 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
         returnIntent.putParcelableArrayListExtra(Constants.SelectedMediaObj, selectedMediaList);
         selectedMediaActivity.setResult(Activity.RESULT_OK, returnIntent);
         selectedMediaActivity.finish();
-//        Intent saveIntent = new Intent(selectedMediaActivity, PickerActivity.class);
-//        saveIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        selectedMediaActivity.startActivity(saveIntent);
-
     }
 
     @Override
     public void onMediaClick(MediaItemBean obj, int position) {
         if (obj != null) {
             selectedMediaView.getSelectedViewPager().setCurrentItem(position);
-            adapter.notifyDataSetChanged();
+            adapter.notifyItemChanged(position);
         }
     }
 

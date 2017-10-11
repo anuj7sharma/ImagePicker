@@ -347,12 +347,26 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                                     System.out.println("Folder-> " + str);
                                 }
                             }
+                            if(folders==null){
+                                showEmptyView();
+                                return;
+                            }
+                            hideEmptyView();
                             List<String> foldersList = new ArrayList<String>(folders);
                             folderSpinnerAdapter = new FolderSpinnerAdapter(mediaListActivity, R.layout.spinner_item, R.id.category_name, foldersList);
                             mediaListView.getSpinner().setAdapter(folderSpinnerAdapter);
 
                             mediaItemList = mediaItemBeans;
 
+                        }
+
+                        private void showEmptyView() {
+                            mediaListView.getEmptyView().setVisibility(View.VISIBLE);
+                            mediaListView.getSpinner().setVisibility(View.GONE);
+                        }
+                        private void hideEmptyView(){
+                            mediaListView.getEmptyView().setVisibility(View.GONE);
+                            mediaListView.getSpinner().setVisibility(View.VISIBLE);
                         }
 
                         @Override
