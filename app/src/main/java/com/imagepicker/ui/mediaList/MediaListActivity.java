@@ -96,7 +96,11 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
     public void onMessageEvent(MessageEvent event) {
         /* Do something */
         if (presenterImpl != null && event != null) {
-            presenterImpl.updateSelectedMedia(event.getMediaItemBean());
+            if (event.isCameraEventClicked()) {
+                presenterImpl.showCameraClickedPics();
+            } else {
+                presenterImpl.updateSelectedMedia(event.getMediaItemBean());
+            }
         }
     }
 

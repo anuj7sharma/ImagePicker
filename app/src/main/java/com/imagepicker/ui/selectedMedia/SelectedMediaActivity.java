@@ -1,6 +1,8 @@
 package com.imagepicker.ui.selectedMedia;
 
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
@@ -8,9 +10,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -20,6 +26,7 @@ import com.imagepicker.model.MessageEvent;
 import com.imagepicker.ui.cropper.CropperActivity;
 import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.DetailViewPagerTransformer;
+import com.imagepicker.utils.SimpleGestureFilter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -31,7 +38,7 @@ import io.fabric.sdk.android.Fabric;
  * auther Anuj Sharma on 9/21/2017.
  */
 
-public class SelectedMediaActivity extends AppCompatActivity implements SelectedMediaView {
+public class SelectedMediaActivity extends AppCompatActivity implements SelectedMediaView,SimpleGestureFilter.SimpleGestureListener {
     private SelectedMediaPresenterImpl presenterImpl;
     private Toolbar toolbar;
     private ViewPager selectedViewPager;
@@ -39,6 +46,7 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
     public static final int CROP_IMAGE_REQUEST_CODE = 501;
     public MenuItem cropMenu;
 
+    private SimpleGestureFilter detector;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -95,6 +103,9 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
             selectedMediaMap = obj.getSeelctedItemMap();
         }
         initViews();
+        // Detect touched area
+        detector = new SimpleGestureFilter(this,this);
+
         presenterImpl = new SelectedMediaPresenterImpl(this, this, selectedMediaMap);
     }
 
@@ -108,27 +119,11 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
         selectedViewPager = findViewById(R.id.selected_viewpager);
         selectedViewPager.setPageTransformer(false, new DetailViewPagerTransformer(DetailViewPagerTransformer.TransformType.DEPTH));
         selectedMediaRecycler = findViewById(R.id.recycler_selected_media);
-
-//        singleMediaFragment = new SingleMediaFragment();
-//        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-//        fragmentTransaction.replace(R.id.media_container, singleMediaFragment);
-//        fragmentTransaction.commit();
-
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        /*if (resultCode == RESULT_OK) {
-            if (requestCode == CROP_IMAGE_REQUEST_CODE) {
-                if (data.getExtras() != null) {
-                    Bitmap croppedBitmap = (Bitmap) data.getExtras().get("data");
-                    System.out.println("Cropped Bitmap-> " + croppedBitmap);
-
-                    System.out.println("on activity result called, save cropped image here");
-                }
-            }
-        }*/
         if (presenterImpl != null)
             presenterImpl.onActivityResult(requestCode, resultCode, data);
     }
@@ -149,4 +144,55 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
     }
 
 
+
+    @Override
+    public void onSwipe(int direction) {
+        String str = "";
+
+        switch (direction) {
+
+            case SimpleGestureFilter.SWIPE_RIGHT : str = "Swipe Right";
+                break;
+            case SimpleGestureFilter.SWIPE_LEFT :  str = "Swipe Left";
+                break;
+            case SimpleGestureFilter.SWIPE_DOWN :  str = "Swipe Down";
+                break;
+            case SimpleGestureFilter.SWIPE_UP :    str = "Swipe Up";
+                break;
+
+        }
+        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDoubleTap() {
+        Toast.makeText(this, "Double Tap", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        // Call onTouchEvent of SimpleGestureFilter class
+        this.detector.onTouchEvent(ev);
+        return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            this.enterPictureInPictureMode();
+        }
+    }
+
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        if (isInPictureInPictureMode) {
+            // Hide the full-screen UI (controls, etc.) while in picture-in-picture mode.
+            toolbar.setVisibility(View.GONE);
+        } else {
+            // Restore the full-screen UI.
+            toolbar.setVisibility(View.VISIBLE);
+        }
+    }
 }

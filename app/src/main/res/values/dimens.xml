@@ -19,4 +19,5 @@
 
     <dimen name="media_item_size">150dp</dimen>
     <dimen name="def_media_icon_small">70dp</dimen>
+    <dimen name="def_icon_small">50dp</dimen>
 </resources>

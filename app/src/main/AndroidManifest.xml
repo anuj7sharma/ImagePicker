@@ -4,9 +4,9 @@
     package="com.imagepicker">
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.front" />
+    <uses-permission android:name="android.hardware.camera.autofocus" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -24,8 +24,8 @@
         tools:ignore="UnusedAttribute,GoogleAppIndexingWarning">
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="d89b6aa2cb3d098ebd08e96bf4dc4847612b92fb"
-            />
+            android:value="d89b6aa2cb3d098ebd08e96bf4dc4847612b92fb" />
+
         <activity android:name=".ui.PickerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -41,13 +41,17 @@
         </activity>
         <activity
             android:name=".ui.selectedMedia.SelectedMediaActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:launchMode="singleTask"
-            android:parentActivityName=".ui.mediaList.MediaListActivity" />
+            android:parentActivityName=".ui.mediaList.MediaListActivity"
+            android:resizeableActivity="true"
+            android:supportsPictureInPicture="true" />
 
         <activity
             android:name=".ui.cropper.CropperActivity"
             android:launchMode="singleTask" />
-        <activity android:name=".ui.camera.CameraActivity" />
+        <activity android:name=".ui.camera.CameraActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

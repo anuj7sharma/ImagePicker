@@ -2,7 +2,6 @@ package com.imagepicker.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.imagepicker.R;
+import com.imagepicker.model.FolderBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,11 +18,11 @@ import java.util.List;
  * Created by Anuj Sharma on 8/18/2017.
  */
 
-public class FolderSpinnerAdapter extends ArrayAdapter<String> {
+public class FolderSpinnerAdapter extends ArrayAdapter<FolderBean> {
     private Context context;
-    List<String> mList;
+    List<FolderBean> mList;
 
-    public FolderSpinnerAdapter(Context context, int resource, int textViewResourceId, List<String> objects) {
+    public FolderSpinnerAdapter(Context context, int resource, int textViewResourceId, List<FolderBean> objects) {
         super(context, resource, textViewResourceId, objects);
         this.context = context;
         this.mList = objects;
@@ -51,18 +51,18 @@ public class FolderSpinnerAdapter extends ArrayAdapter<String> {
         } else {
             holder = (Holder) convertView.getTag();
         }
-
-        System.out.println("Path->" + Environment.getExternalStorageDirectory().getPath());
-        String filePath = mList.get(position).toString();
-        System.out.println("Actual Path-> " + filePath);
-        if (filePath.contains(Environment.getExternalStorageDirectory().getPath())) {
+        FolderBean obj = mList.get(position);
+//        System.out.println("Path->" + Environment.getExternalStorageDirectory().getPath());
+//        String filePath = mList.get(position).toString();
+//        System.out.println("Actual Path-> " + filePath);
+        /*if (filePath.contains(Environment.getExternalStorageDirectory().getPath())) {
             String[] arrayStr = filePath.split(Environment.getExternalStorageDirectory().getPath());
 
 //            filePath = filePath.substring(filePath.indexOf(Environment.getExternalStorageDirectory().getPath())+1);
             filePath = arrayStr[1];
             System.out.println("SubString path->" + filePath);
-        }
-        holder.tableNumber.setText(filePath);
+        }*/
+        holder.tableNumber.setText(obj.getName());
         holder.tableNumber.setTextColor(color);
         holder.tableNumber.setPadding(padding, padding, padding, padding);
 
@@ -74,7 +74,7 @@ public class FolderSpinnerAdapter extends ArrayAdapter<String> {
         return initView(convertView, position, Color.WHITE, 30);
     }
 
-    public void updateList(Context mContext, List<String> mList) {
+    public void updateList(Context mContext, List<FolderBean> mList) {
         this.context = mContext;
         this.mList = new ArrayList<>();
         this.mList.addAll(mList);

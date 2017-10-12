@@ -15,6 +15,9 @@ public interface CameraPresenterView {
 
     interface CameraView {
         FrameLayout getFrame();
+        SurfaceView getSurfaceView();
         ImageView getCaptureBtn();
+        ImageView getRecentImgView();
+        ImageView getSwitchCameraBtn();
     }
 }
