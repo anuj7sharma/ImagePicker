@@ -52,17 +52,7 @@ public class FolderSpinnerAdapter extends ArrayAdapter<FolderBean> {
             holder = (Holder) convertView.getTag();
         }
         FolderBean obj = mList.get(position);
-//        System.out.println("Path->" + Environment.getExternalStorageDirectory().getPath());
-//        String filePath = mList.get(position).toString();
-//        System.out.println("Actual Path-> " + filePath);
-        /*if (filePath.contains(Environment.getExternalStorageDirectory().getPath())) {
-            String[] arrayStr = filePath.split(Environment.getExternalStorageDirectory().getPath());
-
-//            filePath = filePath.substring(filePath.indexOf(Environment.getExternalStorageDirectory().getPath())+1);
-            filePath = arrayStr[1];
-            System.out.println("SubString path->" + filePath);
-        }*/
-        holder.tableNumber.setText(obj.getName());
+        holder.tableNumber.setText(obj.getFolderName());
         holder.tableNumber.setTextColor(color);
         holder.tableNumber.setPadding(padding, padding, padding, padding);
 

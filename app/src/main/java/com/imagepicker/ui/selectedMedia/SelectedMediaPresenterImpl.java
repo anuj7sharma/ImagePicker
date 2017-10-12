@@ -28,6 +28,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
@@ -41,7 +46,7 @@ import static android.app.Activity.RESULT_OK;
  * auther Anuj Sharma on 9/21/2017.
  */
 
-public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
+public class SelectedMediaPresenterImpl implements SelectedMediaPresenter{
 
     private SelectedMediaActivity selectedMediaActivity;
     private SelectedMediaView selectedMediaView;
@@ -167,6 +172,7 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
             }
         }
     }
+
 
     private void saveCroppedImage(final String croppedPath) {
         System.out.println("Cropped Path-> " + croppedPath);

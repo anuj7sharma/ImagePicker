@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -83,7 +84,22 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
         setContentView(R.layout.activity_media_list);
         initViews();
         presenterImpl = new MediaListPresenterImpl(this, this);
+    }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        if(presenterImpl!=null){
+            presenterImpl.onSaveInstanceState(outState,outPersistentState);
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if(presenterImpl!=null){
+            presenterImpl.onRestoreInstanceState(savedInstanceState);
+        }
     }
 
     @Override
@@ -153,14 +169,13 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Show option to update profile
                     if (presenterImpl != null) {
-                        presenterImpl.fetchMediaFiles();
+                        presenterImpl.getMediaFolders();
                     }
 
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     Toast.makeText(this, "Camera/Storage permission Denied", Toast.LENGTH_SHORT).show();
-//                    Utils.getInstance().showToast("Camera/Storage permission Denied");
                 }
             }
 

@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.SparseArray;
@@ -32,7 +33,6 @@ import com.imagepicker.utils.PermissionsAndroid;
 import com.imagepicker.utils.SpacesItemDecoration;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import io.reactivex.Single;
@@ -51,14 +51,14 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     private MediaListActivity mediaListActivity;
     private MediaListView mediaListView;
     private SparseArray<MediaItemBean> selectedMediaMap;
-    private List<MediaItemBean> mediaItemList;
-    private HashMap<String, FolderBean> foldersArray;
+    private ArrayList<FolderBean> folderList;
     private MediaListAdapter adapter;
     private FolderSpinnerAdapter folderSpinnerAdapter;
+    private String selectedFolderName;
 
     //Variables related to Media Projections
 
-    String allMediaSelection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+ /*   String allMediaSelection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
             + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
             + " OR "
             + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
@@ -85,8 +85,8 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
             MediaStore.Files.FileColumns.HEIGHT,
 
     };
-    private Uri queryUri = MediaStore.Files.getContentUri("external");
-//    private Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+//    private Uri queryUri = MediaStore.Files.getContentUri("external");
+//    private Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;*/
 
 
     MediaListPresenterImpl(MediaListActivity mediaListActivity, MediaListView mediaListView) {
@@ -128,34 +128,20 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
             public void onItemSelected(AdapterView<?> parent, View view, final int position, long l) {
                 switch (parent.getId()) {
                     case R.id.spinner_folder:
-                        if (foldersArray != null && foldersArray.size() > 0) {
+                        if (folderList != null && folderList.size() > 0) {
                             //load media for selected folder
-                            /*Single.just(mediaItemList)
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(new DisposableSingleObserver<List<MediaItemBean>>() {
-                                        @Override
-                                        public void onSuccess(List<MediaItemBean> mediaItemBeans) {
-                                            List<MediaItemBean> SelectedFolderMediaList = new ArrayList<>();
-                                            for (MediaItemBean obj :
-                                                    mediaItemList) {
-                                                if (obj.getMediaPath().contains(folderSpinnerAdapter.getItem(position))) {
-                                                    SelectedFolderMediaList.add(obj);
-                                                }
-                                            }
-                                            if (SelectedFolderMediaList.size() > 25) {
-                                                mediaListView.getFastScroller().setVisibility(View.VISIBLE);
-                                            } else {
-                                                mediaListView.getFastScroller().setVisibility(View.GONE);
-                                            }
-                                            adapter.updateList(SelectedFolderMediaList);
-                                        }
-
-                                        @Override
-                                        public void onError(Throwable e) {
-
-                                        }
-                                    });*/
+                            String[] stringArray = folderList.get(position).getCoverPicPath().split("/");
+                            StringBuilder pathBuilder = new StringBuilder();
+                            for (int i = 0; i < stringArray.length - 1; i++) {
+                                pathBuilder.append(stringArray[i] + "/");
+                            }
+                            System.out.println("Selected Folter Path->" + pathBuilder.toString());
+                            selectedFolderName = pathBuilder.toString();
+                            if (PermissionsAndroid.getInstance().checkWriteExternalStoragePermission(mediaListActivity)) {
+                                mediaListActivity.getLoaderManager().restartLoader(GET_MEDIA_CODE, null, MediaListPresenterImpl.this);
+                            } else {
+                                PermissionsAndroid.getInstance().requestForWriteExternalStoragePermission(mediaListActivity);
+                            }
                         }
                         break;
                 }
@@ -167,10 +153,10 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
             }
         });
 
-        fetchMediaFiles();
+        getMediaFolders();
     }
 
-    void fetchMediaFiles() {
+    void getMediaFolders() {
         //check read/write storage permission
         if (PermissionsAndroid.getInstance().checkWriteExternalStoragePermission(mediaListActivity)) {
             mediaListActivity.getLoaderManager().initLoader(GET_FOLDER_CODE, null, this);
@@ -233,7 +219,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
         }
     }
 
-    public void updateSelectedMedia(MediaItemBean mediaItemBean) {
+    protected void updateSelectedMedia(MediaItemBean mediaItemBean) {
         if (selectedMediaMap != null) {
             //Now remove selected Items from arraylist
             Single.just(mediaItemBean).subscribeOn(Schedulers.computation())
@@ -252,9 +238,6 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                                     adapter.getList().get(i).setSelected(false);
                                     adapter.notifyItemChanged(i);
                                 }
-                                if (mediaItemList.get(i).getId().equals(mediaItemBean.getId())) {
-                                    mediaItemList.get(i).setSelected(false);
-                                }
                             }
                             selectedMediaMap.remove(Integer.parseInt(mediaItemBean.getId()));
 
@@ -271,44 +254,57 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
 
     }
 
-    public void showCameraClickedPics() {
-        if (mediaItemList != null) {
-            Toast.makeText(mediaListActivity, "came from camera", Toast.LENGTH_SHORT).show();
-        }
+    protected void showCameraClickedPics() {
+        Toast.makeText(mediaListActivity, "came from camera", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        /*return new CursorLoader(
-                mediaListActivity,
-                queryUri,
-                projection,
-                imageSelection,
-                null, // Selection args (none).
-                MediaStore.Files.FileColumns.DATE_ADDED + " DESC" // Sort order.
-        );*/
-//        Uri getFolderQuery = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        Uri getFolderQuery = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        String BUCKET_GROUP_BY =
-                "1) GROUP BY 1,(2";
-        String BUCKET_ORDER_BY = "MAX(datetaken) DESC";
-        String[] folderProjection = new String[]{
-                MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_TAKEN,
-                MediaStore.Images.Media.DATA
-        };
-//        Cursor cur = mediaListActivity.getContentResolver().query(
-//                getFolderQuery, folderProjection, BUCKET_GROUP_BY, null, BUCKET_ORDER_BY);
-//        return (Loader<Cursor>) cur;
-        return new CursorLoader(
-                mediaListActivity,
-                getFolderQuery,
-                folderProjection,
-                BUCKET_GROUP_BY,
-                null, // Selection args (none).
-                BUCKET_ORDER_BY // Sort order.
-        );
+        Uri queryUri = MediaStore.Files.getContentUri("external");
+        switch (i) {
+            case GET_FOLDER_CODE:
+                String folderSelection = MediaStore.Files.FileColumns.MEDIA_TYPE + "=" + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE +
+                        ") GROUP BY (" + MediaStore.Files.FileColumns.PARENT;
+                String sortOrder = MediaStore.Files.FileColumns.PARENT + " DESC";
+                String[] folderProjection = new String[]{
+                        MediaStore.Files.FileColumns._ID,
+                        MediaStore.Files.FileColumns.PARENT,
+                        MediaStore.Files.FileColumns.DATA,
+                        MediaStore.Files.FileColumns.DISPLAY_NAME,
+                        MediaStore.Files.FileColumns.TITLE
+                };
+                return new CursorLoader(
+                        mediaListActivity,
+                        queryUri,
+                        folderProjection,
+                        folderSelection,
+                        null, // Selection args (none).
+                        sortOrder // Sort order.
+                );
+            case GET_MEDIA_CODE:
+                String[] projection = {
+                        MediaStore.Files.FileColumns._ID,
+                        MediaStore.Files.FileColumns.DATA,
+                        MediaStore.Files.FileColumns.DATE_ADDED,
+                        MediaStore.Files.FileColumns.MEDIA_TYPE,
+                        MediaStore.Files.FileColumns.MIME_TYPE,
+                        MediaStore.Files.FileColumns.TITLE,
+                        MediaStore.Files.FileColumns.DISPLAY_NAME,
+                        MediaStore.Files.FileColumns.SIZE,
+                        MediaStore.Files.FileColumns.WIDTH,
+                        MediaStore.Files.FileColumns.HEIGHT,
+
+                };
+                return new CursorLoader(
+                        mediaListActivity,
+                        queryUri,
+                        projection,
+                        MediaStore.Images.Media.DATA + " like ? ",
+                        new String[]{"%" + selectedFolderName + "%"},
+                        MediaStore.Files.FileColumns.DATE_ADDED + " DESC" // Sort order.
+                );
+        }
+        return null;
     }
 
     @Override
@@ -317,34 +313,83 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
             switch (loader.getId()) {
                 case GET_FOLDER_CODE:
                     if (data.moveToFirst()) {
-                        int bucketColumn = data.getColumnIndex(
-                                MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
                         int _id = data.getColumnIndex(
-                                MediaStore.Images.Media._ID);
-                        int dataColumnIndex = data.getColumnIndex(MediaStore.Images.Media.DATA);
-                        if (foldersArray == null) foldersArray = new HashMap<>();
+                                MediaStore.Files.FileColumns._ID);
+                        int _parent = data.getColumnIndex(MediaStore.Files.FileColumns.PARENT);
+//                        int _coverImageName = data.getColumnIndex(
+//                                MediaStore.Files.FileColumns.DISPLAY_NAME);
+                        int _title = data.getColumnIndex(MediaStore.Files.FileColumns.TITLE);
+                        int _coverImgPath = data.getColumnIndex(MediaStore.Files.FileColumns.DATA);
+                        if (folderList == null) folderList = new ArrayList<>();
                         do {
-                            System.out.println("ID column-> " + data.getString(_id));
-                            System.out.println("folder name column-> " + data.getString(bucketColumn));
-                            System.out.println("folder image column-> " + data.getString(dataColumnIndex));
+                            String id = data.getString(_id);
+                            String parent_id = data.getString(_parent);
+//                            String coverImgName = data.getString(_coverImageName);
+                            String coverImgTitle = data.getString(_title);
+                            String coverPicPath = data.getString(_coverImgPath);
+                            //get folder name from cover pic path
+                            String[] stringArray = coverPicPath.split("/");
+                            String folderName = stringArray[stringArray.length - 2];
 
                             FolderBean obj = new FolderBean();
-                            String id = data.getString(_id);
-                            String name = data.getString(bucketColumn);
                             obj.setId(id);
-                            obj.setName(name);
-                            foldersArray.put(name, obj);
+                            obj.setCoverPicName(coverImgTitle);
+                            obj.setCoverPicPath(coverPicPath);
+                            obj.setFolderName(folderName);
+
+                            folderList.add(obj);
+                            System.out.println("ID column-> " + id);
+                            System.out.println("Parent column-> " + parent_id);
+//                            System.out.println("cover image name -> " + coverImgName);
+                            System.out.println("cover Image Title -> " + coverImgTitle);
+                            System.out.println("cover Image path-> " + coverPicPath);
+                            System.out.println("Folder Name-> " + folderName);
+
                         } while (data.moveToNext());
-                        if (foldersArray.size() > 0) {
-                            //set spinner adapter
-                            List<FolderBean> folderList = new ArrayList<FolderBean>(foldersArray.values());
-                            folderSpinnerAdapter = new FolderSpinnerAdapter(mediaListActivity, R.layout.spinner_item, R.id.category_name, folderList);
-                            mediaListView.getSpinner().setAdapter(folderSpinnerAdapter);
-                        }
+                        folderSpinnerAdapter = new FolderSpinnerAdapter(mediaListActivity, R.layout.spinner_item, R.id.category_name, folderList);
+                        mediaListView.getSpinner().setAdapter(folderSpinnerAdapter);
+
                     }
                     break;
                 case GET_MEDIA_CODE:
-
+                    if (data.moveToFirst()) {
+                        int id = data.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+                        int mediaData = data.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                        int mediaName = data.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
+                        int mimeType = data.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE);
+                        int mediaSize = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE);
+                        int dateAdded = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_ADDED);
+                        int mediaType = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
+                        int title = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.TITLE);
+                        int width = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.WIDTH);
+                        int height = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.HEIGHT);
+                        List<MediaItemBean> mediaList = new ArrayList<>();
+                        do {
+                            MediaItemBean obj = new MediaItemBean();
+                            obj.setId(data.getString(id));
+                            obj.setMediaPath(data.getString(mediaData));
+                            obj.setMediaName(data.getString(mediaName));
+                            obj.setMimeType(data.getString(mimeType));
+                            obj.setMediaSize(data.getLong(mediaSize));
+                            obj.setMediaType(data.getString(mediaType));
+                            obj.setTitle(data.getString(title));
+                            obj.setWidth(data.getInt(width));
+                            obj.setHeight(data.getInt(height));
+                            obj.setDateAdded(data.getString(dateAdded));
+                            if (selectedMediaMap != null && selectedMediaMap.get(Integer.parseInt(obj.getId())) != null) {
+                                obj.setSelected(true);
+                            }
+                            mediaList.add(obj);
+                        }
+                        while (data.moveToNext());
+                        if (mediaList.size() > 0) {
+                            hideEmptyView();
+                            adapter.updateList(mediaList);
+                        } else {
+                            showEmptyView();
+                            adapter.updateList(null);
+                        }
+                    }
                     break;
             }
 
@@ -470,13 +515,19 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
      * Check if this device has a camera
      */
     private boolean checkCameraHardware(Context context) {
-        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-            // this device has a camera
-            return true;
-        } else {
-            // no camera on this device
-            return false;
+        return (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) ? true : false;
+    }
+
+    protected void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        if (folderList != null) {
+            outState.putParcelableArrayList("folder_list", folderList);
         }
     }
 
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState.getParcelableArrayList("folder_list") != null) {
+            folderList = savedInstanceState.getParcelableArrayList("folder_list");
+            folderSpinnerAdapter.updateList(mediaListActivity, folderList);
+        }
+    }
 }
