@@ -28,6 +28,19 @@ public class FolderSpinnerAdapter extends ArrayAdapter<FolderBean> {
         this.mList = objects;
     }
 
+    public int getAppCameraPosition() {
+        if (mList != null) {
+            for (int i = 0; i < mList.size(); i++) {
+                if (mList.get(i).getFolderName().equals(context.getString(R.string.app_name))) {
+                    return i;
+                }
+            }
+
+        }
+
+        return 0;
+    }
+
     @Override
     public int getCount() {
         if (mList != null)

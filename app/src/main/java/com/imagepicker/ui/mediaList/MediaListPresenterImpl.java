@@ -11,7 +11,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.SparseArray;
@@ -32,6 +32,7 @@ import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.PermissionsAndroid;
 import com.imagepicker.utils.SpacesItemDecoration;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -130,13 +131,8 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                     case R.id.spinner_folder:
                         if (folderList != null && folderList.size() > 0) {
                             //load media for selected folder
-                            String[] stringArray = folderList.get(position).getCoverPicPath().split("/");
-                            StringBuilder pathBuilder = new StringBuilder();
-                            for (int i = 0; i < stringArray.length - 1; i++) {
-                                pathBuilder.append(stringArray[i] + "/");
-                            }
-                            System.out.println("Selected Folter Path->" + pathBuilder.toString());
-                            selectedFolderName = pathBuilder.toString();
+                            selectedFolderName = folderList.get(position).getCoverPicPath().substring(0, folderList.get(position).getCoverPicPath().lastIndexOf("/") + 1);
+                            System.out.println("Selected Folder Path-> " + selectedFolderName);
                             if (PermissionsAndroid.getInstance().checkWriteExternalStoragePermission(mediaListActivity)) {
                                 mediaListActivity.getLoaderManager().restartLoader(GET_MEDIA_CODE, null, MediaListPresenterImpl.this);
                             } else {
@@ -206,16 +202,18 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
         System.out.println("Select Id-> " + obj.getId());
     }
 
-    private void manageToolbarCount() {
+    protected void manageToolbarCount() {
         if (selectedMediaMap == null) return;
         //update selected media count on toolbar
-        mediaListActivity.count.setTitle(String.valueOf(selectedMediaMap.size()));
-        if (selectedMediaMap.size() > 0) {
-            mediaListActivity.count.setVisible(true);
-            mediaListActivity.save.setVisible(true);
-        } else {
-            mediaListActivity.count.setVisible(false);
-            mediaListActivity.save.setVisible(false);
+        if (mediaListActivity.count != null && mediaListActivity.save != null) {
+            mediaListActivity.count.setTitle(String.valueOf(selectedMediaMap.size()));
+            if (selectedMediaMap.size() > 0) {
+                mediaListActivity.count.setVisible(true);
+                mediaListActivity.save.setVisible(true);
+            } else {
+                mediaListActivity.count.setVisible(false);
+                mediaListActivity.save.setVisible(false);
+            }
         }
     }
 
@@ -255,7 +253,31 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     }
 
     protected void showCameraClickedPics() {
-        Toast.makeText(mediaListActivity, "came from camera", Toast.LENGTH_SHORT).show();
+        File dir = new File(Environment.getExternalStorageDirectory() + File.separator +
+                mediaListActivity.getString(R.string.app_name));
+        if (dir.isDirectory()) {
+            if (folderSpinnerAdapter != null) {
+                int position = folderSpinnerAdapter.getAppCameraPosition();
+                if (mediaListView.getSpinner().getSelectedItemPosition() == position) {
+                    selectedFolderName = folderList.get(position).getCoverPicPath().substring(0, folderList.get(position).getCoverPicPath().lastIndexOf("/") + 1);
+                    System.out.println("Selected Folder Path-> " + selectedFolderName);
+                    if (PermissionsAndroid.getInstance().checkWriteExternalStoragePermission(mediaListActivity)) {
+                        mediaListActivity.getLoaderManager().restartLoader(GET_MEDIA_CODE, null, MediaListPresenterImpl.this);
+                    } else {
+                        PermissionsAndroid.getInstance().requestForWriteExternalStoragePermission(mediaListActivity);
+                    }
+                } else {
+                    mediaListView.getSpinner().setSelection(position);
+                }
+            }
+            /*selectedFolderName = dir.getAbsolutePath();
+            System.out.println("Selected Folder Path-> " + selectedFolderName);
+            if (PermissionsAndroid.getInstance().checkWriteExternalStoragePermission(mediaListActivity)) {
+                mediaListActivity.getLoaderManager().restartLoader(GET_MEDIA_CODE, null, MediaListPresenterImpl.this);
+            } else {
+                PermissionsAndroid.getInstance().requestForWriteExternalStoragePermission(mediaListActivity);
+            }*/
+        }
     }
 
     @Override
@@ -385,6 +407,11 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                         if (mediaList.size() > 0) {
                             hideEmptyView();
                             adapter.updateList(mediaList);
+                            if (mediaList.size() > 20) {
+                                mediaListView.getFastScroller().setVisibility(View.VISIBLE);
+                            } else {
+                                mediaListView.getFastScroller().setVisibility(View.GONE);
+                            }
                         } else {
                             showEmptyView();
                             adapter.updateList(null);
@@ -518,9 +545,14 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
         return (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) ? true : false;
     }
 
-    protected void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+    protected void onSaveInstanceState(Bundle outState) {
         if (folderList != null) {
             outState.putParcelableArrayList("folder_list", folderList);
+        }
+        if (null != selectedMediaMap) {
+            MediaItemBean obj = new MediaItemBean();
+            obj.setSeelctedItemMap(selectedMediaMap);
+            outState.putParcelable("selected_media_map", obj);
         }
     }
 
@@ -528,6 +560,10 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
         if (savedInstanceState.getParcelableArrayList("folder_list") != null) {
             folderList = savedInstanceState.getParcelableArrayList("folder_list");
             folderSpinnerAdapter.updateList(mediaListActivity, folderList);
+        }
+        if (savedInstanceState.getParcelable("selected_media_map") != null) {
+            MediaItemBean obj = savedInstanceState.getParcelable("selected_media_map");
+            selectedMediaMap = obj.getSeelctedItemMap();
         }
     }
 }

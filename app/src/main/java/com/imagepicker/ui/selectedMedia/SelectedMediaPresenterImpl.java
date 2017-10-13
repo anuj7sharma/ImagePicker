@@ -28,11 +28,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
@@ -46,7 +41,7 @@ import static android.app.Activity.RESULT_OK;
  * auther Anuj Sharma on 9/21/2017.
  */
 
-public class SelectedMediaPresenterImpl implements SelectedMediaPresenter{
+public class SelectedMediaPresenterImpl implements SelectedMediaPresenter {
 
     private SelectedMediaActivity selectedMediaActivity;
     private SelectedMediaView selectedMediaView;
@@ -198,11 +193,16 @@ public class SelectedMediaPresenterImpl implements SelectedMediaPresenter{
                                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
                                 // PNG is a lossless format, the compression factor (100) is ignored
 
+
                                 //update adapter
                                 selectedMediaList.get(position).setCroppedPath(file.getAbsolutePath());
 //                                selectedMediaList.get(position).setMediaPath(file.getAbsolutePath());
                                 adapter.notifyItemChanged(position);
                                 ((MediaPagerAdapter) pagerAdapter).updateList(selectedMediaList);
+
+                                Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                                mediaScanIntent.setData(Uri.fromFile(file));
+                                selectedMediaActivity.sendBroadcast(mediaScanIntent);
 
                             } catch (Exception e) {
                                 e.printStackTrace();

@@ -1,12 +1,16 @@
 package com.imagepicker.ui.camera;
 
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
+import android.content.Loader;
+import android.database.Cursor;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,13 +27,19 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 import static android.view.OrientationEventListener.ORIENTATION_UNKNOWN;
 
 /**
  * author by Anuj Sharma on 10/3/2017.
  */
 
-public class CameraActivityPresenterImpl implements View.OnClickListener {
+public class CameraActivityPresenterImpl implements View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "custom camera";
     private CameraPresenterView.CameraView cameraView;
     private CameraActivity cameraActivity;
@@ -58,6 +68,7 @@ public class CameraActivityPresenterImpl implements View.OnClickListener {
             cameraView.getFrame().addView(mPreview);
             mPreview.setKeepScreenOn(true);
 
+            cameraActivity.getLoaderManager().initLoader(101, null, this);
         } else {
             PermissionsAndroid.getInstance().requestForCameraPermission(cameraActivity);
         }
@@ -102,6 +113,7 @@ public class CameraActivityPresenterImpl implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_capture:
+                disableEnableBtn(true);
                 onOrientationChanged(270);
                 camera.getParameters().setJpegQuality(90);
                 camera.getParameters().setJpegThumbnailQuality(90);
@@ -161,23 +173,132 @@ public class CameraActivityPresenterImpl implements View.OnClickListener {
 
     Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
-            new SaveImageTask().execute(data);
-            resetCam();
+
+            Single.just(data).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new SingleObserver<byte[]>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onSuccess(byte[] bytes) {
+                            FileOutputStream outStream = null;
+                            // Write to SD Card
+                            try {
+                                File dir = new File(Environment.getExternalStorageDirectory() + File.separator +
+                                        cameraActivity.getString(R.string.app_name));
+                                if (!dir.isDirectory()) dir.mkdir();
+
+                                String fileName = String.format("%d.jpg", System.currentTimeMillis());
+                                File outFile = new File(dir, fileName);
+                                outStream = new FileOutputStream(outFile);
+                                outStream.write(bytes);
+                                outStream.flush();
+                                outStream.close();
+                                Log.d(TAG, "onPictureTaken - wrote bytes: " + bytes.length + " to " + outFile.getAbsolutePath());
+                                refreshGallery(outFile);
+                                if (cameraActivity != null) {
+                                    disableEnableBtn(false);
+                                    if (outFile != null) {
+                                        Uri uri = Uri.fromFile(outFile);
+                                        cameraView.getRecentImgView().setImageURI(uri);
+                                    }
+                                }
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            resetCam();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+                    });
+
+
+//            new SaveImageTask().execute(data);
+//            resetCam();
             Log.d(TAG, "onPictureTaken - jpeg");
         }
     };
 
-    public Bitmap rotate(Bitmap bitmap, int degree) {
-        int w = bitmap.getWidth();
-        int h = bitmap.getHeight();
 
-        Matrix mtx = new Matrix();
-        //       mtx.postRotate(degree);
-        mtx.setRotate(degree);
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        Uri queryUri = MediaStore.Files.getContentUri("external");
+        String folderSelection = MediaStore.Files.FileColumns.MEDIA_TYPE + "=" + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE +
+                ") GROUP BY (" + MediaStore.Files.FileColumns.PARENT + "AND" + MediaStore.Images.Media.DATA + " like ? ";
+        String sortOrder = MediaStore.Files.FileColumns.PARENT + " DESC";
+        String[] folderProjection = new String[]{
+                MediaStore.Files.FileColumns._ID,
+                MediaStore.Files.FileColumns.PARENT,
+                MediaStore.Files.FileColumns.DATA,
+                MediaStore.Files.FileColumns.DISPLAY_NAME,
+                MediaStore.Files.FileColumns.TITLE
+        };
+        File dir = new File(Environment.getExternalStorageDirectory() + File.separator +
+                cameraActivity.getString(R.string.app_name));
 
-        return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, true);
+        if (!dir.isDirectory()) {
+            return null;
+        }
+
+        return new CursorLoader(
+                cameraActivity,
+                queryUri,
+                folderProjection,
+                MediaStore.Images.Media.DATA + " like ? ",
+                new String[]{"%" + dir.getAbsolutePath() + "%"}, // Selection args (none).
+                sortOrder // Sort order.
+        );
     }
 
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (cursor.moveToFirst()) {
+            int _id = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+            int mediaData = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            int mediaName = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
+            String id = cursor.getString(_id);
+            String coverImgTitle = cursor.getString(mediaName);
+            String coverPicPath = cursor.getString(mediaData);
+
+
+            System.out.println("ID column-> " + id);
+            System.out.println("cover Image Title -> " + coverImgTitle);
+            System.out.println("cover Image path-> " + coverPicPath);
+            Uri uri = Uri.fromFile(new File(coverPicPath));
+            cameraView.getRecentImgView().setImageURI(uri);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+
+    private void disableEnableBtn(boolean isDisableBtn) {
+        if (isDisableBtn) {
+            cameraView.getCaptureBtn().setEnabled(false);
+            cameraView.getCaptureBtn().setAlpha(0.3f);
+            cameraView.getSwitchCameraBtn().setEnabled(false);
+            cameraView.getSwitchCameraBtn().setAlpha(0.3f);
+        } else {
+            cameraView.getCaptureBtn().setEnabled(true);
+            cameraView.getCaptureBtn().setAlpha(1f);
+            cameraView.getSwitchCameraBtn().setEnabled(true);
+            cameraView.getSwitchCameraBtn().setAlpha(1f);
+        }
+    }
+
+    /**
+     * Save Image on Disk
+     */
     private class SaveImageTask extends AsyncTask<byte[], Void, Void> {
         File outFile;
 
@@ -211,9 +332,12 @@ public class CameraActivityPresenterImpl implements View.OnClickListener {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             //show recent clicked image on view left side
-            if (outFile != null) {
-                Uri uri = Uri.fromFile(outFile);
-                cameraView.getRecentImgView().setImageURI(uri);
+            if (cameraActivity != null) {
+                disableEnableBtn(false);
+                if (outFile != null) {
+                    Uri uri = Uri.fromFile(outFile);
+                    cameraView.getRecentImgView().setImageURI(uri);
+                }
             }
         }
     }
@@ -223,44 +347,4 @@ public class CameraActivityPresenterImpl implements View.OnClickListener {
         mediaScanIntent.setData(Uri.fromFile(file));
         cameraActivity.sendBroadcast(mediaScanIntent);
     }
-
-    /*private void maintainOrientation(String photoPath, Bitmap bitmap) {
-        try {
-            ExifInterface ei = new ExifInterface(photoPath);
-            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                    ExifInterface.ORIENTATION_UNDEFINED);
-
-            Bitmap rotatedBitmap = null;
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    rotatedBitmap = rotateImage(bitmap, 90);
-                    break;
-
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    rotatedBitmap = rotateImage(bitmap, 180);
-                    break;
-
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    rotatedBitmap = rotateImage(bitmap, 270);
-                    break;
-
-                case ExifInterface.ORIENTATION_NORMAL:
-                default:
-                    rotatedBitmap = bitmap;
-            }
-//            Uri uri = Uri.fromFile(new File(photoPath));
-            cameraView.getRecentImgView().setImageBitmap(rotatedBitmap);
-//            cameraView.getRecentImgView().setImageURI(uri);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public Bitmap rotateImage(Bitmap source, float angle) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
-                matrix, true);
-    }*/
-
 }

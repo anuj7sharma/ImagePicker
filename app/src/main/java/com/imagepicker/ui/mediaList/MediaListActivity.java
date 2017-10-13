@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -15,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -55,12 +55,22 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu_save, menu);
+        return true;
+
+    }
+
+    @Override
+    protected boolean onPrepareOptionsPanel(View view, Menu menu) {
+        System.out.println("on prepareoption panel");
         save = menu.findItem(R.id.action_save);
         count = menu.findItem(R.id.action_count);
         save.setVisible(false);
         count.setVisible(false);
-        return true;
 
+        if (presenterImpl != null) {
+            presenterImpl.manageToolbarCount();
+        }
+        return true;
     }
 
     @Override
@@ -75,7 +85,6 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
         return true;
     }
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,17 +96,17 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-        if(presenterImpl!=null){
-            presenterImpl.onSaveInstanceState(outState,outPersistentState);
+    protected void onSaveInstanceState(Bundle outState) {
+        if (presenterImpl != null) {
+            presenterImpl.onSaveInstanceState(outState);
         }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if(presenterImpl!=null){
+        if (presenterImpl != null) {
             presenterImpl.onRestoreInstanceState(savedInstanceState);
         }
     }
