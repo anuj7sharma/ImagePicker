@@ -375,7 +375,66 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                     break;
                 case GET_MEDIA_CODE:
                     if (data.moveToFirst()) {
-                        int id = data.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+                        Single.just(data).observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe(new SingleObserver<Cursor>() {
+                                    @Override
+                                    public void onSubscribe(Disposable d) {
+
+                                    }
+
+                                    @Override
+                                    public void onSuccess(Cursor cursor) {
+                                        int id = data.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+                                        int mediaData = data.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                                        int mediaName = data.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
+                                        int mimeType = data.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE);
+                                        int mediaSize = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE);
+                                        int dateAdded = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_ADDED);
+                                        int mediaType = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
+                                        int title = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.TITLE);
+                                        int width = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.WIDTH);
+                                        int height = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.HEIGHT);
+                                        List<MediaItemBean> mediaList = new ArrayList<>();
+                                        do{
+                                            MediaItemBean obj = new MediaItemBean();
+                                            obj.setId(data.getString(id));
+                                            obj.setMediaPath(data.getString(mediaData));
+                                            obj.setMediaName(data.getString(mediaName));
+                                            obj.setMimeType(data.getString(mimeType));
+                                            obj.setMediaSize(data.getLong(mediaSize));
+                                            obj.setMediaType(data.getString(mediaType));
+                                            obj.setTitle(data.getString(title));
+                                            obj.setWidth(data.getInt(width));
+                                            obj.setHeight(data.getInt(height));
+                                            obj.setDateAdded(data.getString(dateAdded));
+                                            if (selectedMediaMap != null && selectedMediaMap.get(Integer.parseInt(obj.getId())) != null) {
+                                                obj.setSelected(true);
+                                            }
+                                            mediaList.add(obj);
+                                        }while (cursor.moveToNext());
+                                        if (mediaList.size() > 0) {
+                                            hideEmptyView();
+                                            adapter.updateList(mediaList);
+                                            if (mediaList.size() > 20) {
+                                                mediaListView.getFastScroller().setVisibility(View.VISIBLE);
+                                            } else {
+                                                mediaListView.getFastScroller().setVisibility(View.GONE);
+                                            }
+                                        } else {
+                                            showEmptyView();
+                                            adapter.updateList(null);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+
+                                    }
+                                });
+
+
+                        /*int id = data.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
                         int mediaData = data.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
                         int mediaName = data.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
                         int mimeType = data.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE);
@@ -415,12 +474,10 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                         } else {
                             showEmptyView();
                             adapter.updateList(null);
-                        }
+                        }*/
                     }
                     break;
             }
-
-
         }
 
 

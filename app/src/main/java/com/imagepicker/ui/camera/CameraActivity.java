@@ -41,6 +41,11 @@ public class CameraActivity extends AppCompatActivity implements CameraPresenter
     }
 
     @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
