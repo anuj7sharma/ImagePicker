@@ -396,7 +396,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                                         int width = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.WIDTH);
                                         int height = data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.HEIGHT);
                                         List<MediaItemBean> mediaList = new ArrayList<>();
-                                        do{
+                                        do {
                                             MediaItemBean obj = new MediaItemBean();
                                             obj.setId(data.getString(id));
                                             obj.setMediaPath(data.getString(mediaData));
@@ -412,7 +412,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                                                 obj.setSelected(true);
                                             }
                                             mediaList.add(obj);
-                                        }while (cursor.moveToNext());
+                                        } while (cursor.moveToNext());
                                         if (mediaList.size() > 0) {
                                             hideEmptyView();
                                             adapter.updateList(mediaList);

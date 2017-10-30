@@ -23,6 +23,7 @@ import com.imagepicker.cropper.CropImage;
 import com.imagepicker.cropper.CropImageOptions;
 import com.imagepicker.cropper.CropImageView;
 import com.imagepicker.model.MediaItemBean;
+import com.imagepicker.ui.GlobalApplication;
 import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.PermissionsAndroid;
 
@@ -88,6 +89,7 @@ public class CropperActivity extends AppCompatActivity implements CropImageView.
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((GlobalApplication) getApplication()).getAppComponent().inject(this);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_cropper);
         initViews();

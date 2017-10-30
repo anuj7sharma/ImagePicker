@@ -23,6 +23,7 @@ import com.crashlytics.android.Crashlytics;
 import com.imagepicker.R;
 import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.model.MessageEvent;
+import com.imagepicker.ui.GlobalApplication;
 import com.imagepicker.ui.cropper.CropperActivity;
 import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.DetailViewPagerTransformer;
@@ -95,6 +96,7 @@ public class SelectedMediaActivity extends AppCompatActivity implements Selected
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((GlobalApplication)getApplication()).getAppComponent().inject(this);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_selected_media);
         SparseArray<MediaItemBean> selectedMediaMap = null;

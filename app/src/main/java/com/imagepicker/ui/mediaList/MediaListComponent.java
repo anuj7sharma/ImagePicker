@@ -1,6 +1,6 @@
 package com.imagepicker.ui.mediaList;
 
-import com.imagepicker.dagger.AppComponent;
+import com.imagepicker.dagger.component.AppComponent;
 import com.imagepicker.dagger.PerActivity;
 
 import dagger.Component;

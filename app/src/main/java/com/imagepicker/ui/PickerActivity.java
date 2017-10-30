@@ -13,8 +13,11 @@ import com.imagepicker.R;
 import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.ui.mediaList.MediaListActivity;
 import com.imagepicker.utils.Constants;
+import com.imagepicker.utils.SharedPreferencesHandler;
 
 import java.util.ArrayList;
+
+import javax.inject.Inject;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -22,9 +25,14 @@ public class PickerActivity extends AppCompatActivity {
     public static final int PICKER_REQUEST_CODE = 1000;
     private TextView txtView;
 
+    @Inject
+    public SharedPreferencesHandler pref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Inject Activity Component
+        ((GlobalApplication) getApplication()).getAppComponent().inject(this);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_picker);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -36,6 +44,8 @@ public class PickerActivity extends AppCompatActivity {
         btnGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                pref.put("test_id", "277520");
+                System.out.println("output-> " + pref.get("test_id", "null"));
                 startActivityForResult(new Intent(PickerActivity.this, MediaListActivity.class), PICKER_REQUEST_CODE);
             }
         });

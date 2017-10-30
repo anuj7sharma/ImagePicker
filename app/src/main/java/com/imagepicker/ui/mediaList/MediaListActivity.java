@@ -22,6 +22,7 @@ import com.crashlytics.android.Crashlytics;
 import com.imagepicker.R;
 import com.imagepicker.model.MediaItemBean;
 import com.imagepicker.model.MessageEvent;
+import com.imagepicker.ui.GlobalApplication;
 import com.imagepicker.ui.PickerActivity;
 import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.PermissionsAndroid;
@@ -88,6 +89,7 @@ public class MediaListActivity extends AppCompatActivity implements MediaListVie
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((GlobalApplication) getApplication()).getAppComponent().inject(this);
         Fabric.with(this, new Crashlytics());
         EventBus.getDefault().register(this);
         setContentView(R.layout.activity_media_list);
