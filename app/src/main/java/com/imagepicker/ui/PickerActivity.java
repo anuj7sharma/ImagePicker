@@ -16,10 +16,18 @@ import com.imagepicker.utils.Constants;
 import com.imagepicker.utils.SharedPreferencesHandler;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import io.fabric.sdk.android.Fabric;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
+import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.schedulers.Schedulers;
 
 public class PickerActivity extends AppCompatActivity {
     public static final int PICKER_REQUEST_CODE = 1000;

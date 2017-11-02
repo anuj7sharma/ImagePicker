@@ -18,14 +18,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_12"
-                android:hint="Enter PhoneNumber" />
+                android:hint="Enter PhoneNumber"
+                android:imeOptions="actionNext"
+                android:inputType="phone"
+                android:maxLines="1" />
 
             <EditText
                 android:id="@+id/et_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_12"
-                android:hint="Enter Password" />
+                android:hint="Enter Password"
+                android:imeOptions="actionDone"
+                android:inputType="textPassword"
+                android:maxLines="1" />
 
             <android.support.v7.widget.AppCompatButton
                 android:id="@+id/btn_login"

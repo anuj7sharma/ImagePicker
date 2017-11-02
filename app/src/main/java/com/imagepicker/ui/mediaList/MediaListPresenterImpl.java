@@ -40,6 +40,8 @@ import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.internal.operators.single.SingleFlatMapIterableObservable;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -57,6 +59,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
     private FolderSpinnerAdapter folderSpinnerAdapter;
     private String selectedFolderName;
 
+    private DisposableObserver disposableObserver;
     //Variables related to Media Projections
 
  /*   String allMediaSelection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
@@ -343,6 +346,7 @@ public class MediaListPresenterImpl implements MediaListPresenter, LoaderManager
                         int _title = data.getColumnIndex(MediaStore.Files.FileColumns.TITLE);
                         int _coverImgPath = data.getColumnIndex(MediaStore.Files.FileColumns.DATA);
                         if (folderList == null) folderList = new ArrayList<>();
+
                         do {
                             String id = data.getString(_id);
                             String parent_id = data.getString(_parent);
